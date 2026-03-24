@@ -1,0 +1,30 @@
+/* English: Import your font (Example with Montserrat) */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+:root {
+  /* English: Design Tokens (Juniata Identity) */
+  --juniata-blue: #1B365D;
+  --juniata-gold: #A89968;
+  --white: #FFFFFF;
+  --light-gray: #F4F4F4;
+  --text-dark: #333333;
+
+  /* English: Typography */
+  --font-main: 'Montserrat', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  background-color: var(--light-gray);
+  color: var(--text-dark);
+}
+
+.btn-primary {
+  background-color: var(--juniata-blue);
+  color: var(--white);
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
