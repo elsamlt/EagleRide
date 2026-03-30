@@ -60,6 +60,6 @@ All endpoints are prefixed with `/api`.
  
 1. Create a branch: `git checkout -b name-of-task`
 2. Commit your changes: `git commit -m "description"`
-3. Push to the branch: `git push origin feature/name-of-task`
+3. Push to the branch: `git push origin name-of-task`
 4. Open a **Pull Request** on GitHub.
  
