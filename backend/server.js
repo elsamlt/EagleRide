@@ -17,6 +17,7 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME
 });
 
+
 // Connect to Alwaysdata MySQL database
 db.connect(err => {
     if (err) {
