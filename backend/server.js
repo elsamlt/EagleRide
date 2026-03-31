@@ -44,3 +44,8 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+//this is the section i will be working on
+//tasks
+//Returns all comments and stars for a specific ride/driver.
+//Returns the vehicle details linked to a driver.
