@@ -1,0 +1,33 @@
+### Variables
+@baseUrl = http://localhost:3000
+
+### 1. Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "goldCardNumber": 55501,
+    "name": "Elsa Milhet",
+    "email": "milhet@juniata.edu",
+    "password": "securePass123",
+    "dateOfBirth": "2002-05-15",
+    "phoneNumber": 123456789,
+    "prefersMusic": "Rock",
+    "prefersConversation": "Yes",
+    "prefersPets": "Dogs only",
+    "prefersSmoke": "No",
+    "driverLicense": "PA-987654321"
+}
+
+### 2. Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "milhet@juniata.edu",
+    "password": "securePass123"
+}
+
+### 3. Get User Profile (Replace :id with a real goldCardNumber)
+GET {{baseUrl}}/users/55501
