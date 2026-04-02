@@ -54,7 +54,7 @@ app.delete('/api/rides/:id', (req, res) => {
 
     db.query(sql, [rideID], (err, result) => {
         if (err) {
-            console.error("SQL Error: ") err;
+            console.error("SQL Error: ", err);
             return res.status(500).json({ Error: "Internal Server Error" });
         }
         //checking if ID was actually deleted
