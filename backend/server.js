@@ -92,6 +92,19 @@ app.put('/api/rides/:id'), (req, res) => {
 
     });
 
-    
+    //GET ride by ID
+    app.get('/api/rides/:id', (req, res) => {
+        const rideID = req.params.id;
+        const sql = "SELECT * FROM Ride WHERE rideID = ?";
+
+        db.query(sql, [rideID], (err, result) => {
+            if (err) {
+                console.error("SQL Error: ", err);
+                return res.status(500).json({ Error: "Internal Server Error" });
+            }
+            //returns list
+            res.json(result);
+        });
+    });
 
 }
