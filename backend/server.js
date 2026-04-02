@@ -46,7 +46,7 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-//DELETE ride (Kyleigh)
+//DELETE ride by ID
 app.delete('/api/rides/:id', (req, res) => {
     //gets ID from parameter
     const rideID = req.params.id;
@@ -66,3 +66,32 @@ app.delete('/api/rides/:id', (req, res) => {
     });
 
 });
+
+//PUT update ride by ID
+app.put('/api/rides/:id'), (req, res) => {
+    const rideID = req.params.id;
+    const { userID, startLocation, endLocation, rideDate } = req.body;
+
+    //makes sure we aren't updating empty values
+    if (!userID || !startLocation || !endLocation || !rideDate){
+        return res.status(400).json({ Error: "Missing Required Fields" });
+    }
+
+    const sql = "UPDATE Ride SET userID = ?, startLocation = ?, endLocation = ?, rideDate = ? WHERE rideID = ?";
+    //order must match this order in SQL statement
+    db.query(sql, [userID, startLocation, endLocation, rideDate, rideID], (err, result) => {
+        if (err) {
+            console.error("SQL Error: ", err);
+            return res.status(500).json({ Error: "Internal Server Error" });
+        }
+        //checking if ride exists
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ Error: "Ride not found" });
+        }
+        res.json({ Message: `Ride with ID: ${rideID} has been updated successfully` });
+
+    });
+
+    
+
+}
