@@ -45,3 +45,24 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+//DELETE ride (Kyleigh)
+app.delete('/api/rides/:id', (req, res) => {
+    //gets ID from parameter
+    const rideID = req.params.id;
+    const sql = "DELETE FROM Ride WHERE rideID = ?";
+
+    db.query(sql, [rideID], (err, result) => {
+        if (err) {
+            console.error("SQL Error: ") err;
+            return res.status(500).json({ Error: "Internal Server Error" });
+        }
+        //checking if ID was actually deleted
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ Error: "Ride not found" });
+        }
+
+        res.json({ Message: `Ride with ID: ${rideID} was deleted successfully` });
+    });
+
+});
