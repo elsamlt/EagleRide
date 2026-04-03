@@ -39,13 +39,40 @@ app.get('/api/users', (req, res) => {
     });
 });
 
+// Route: Get all comments and stars for a specific driver
+app.get('/api/drivers/:driverId/reviews', (req, res) => {
+    const { driverId } = req.params;
+    const sql = "SELECT comment, stars FROM Review WHERE driver_id = ?";
+    
+    db.query(sql, [driverId], (err, result) => {
+        if (err) {
+            console.error("SQL Error:", err);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+        res.json(result);
+    });
+});
+
+// Route: Get vehicle details linked to a driver
+app.get('/api/drivers/:driverId/vehicle', (req, res) => {
+    const { driverId } = req.params;
+    const sql = "SELECT * FROM Vehicle WHERE driver_id = ?";
+    
+    db.query(sql, [driverId], (err, result) => {
+        if (err) {
+            console.error("SQL Error:", err);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Vehicle not found" });
+        }
+        res.json(result[0]); // Assuming one vehicle per driver
+    });
+});
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-//this is the section i will be working on
-//tasks
-//Returns all comments and stars for a specific ride/driver.
-//Returns the vehicle details linked to a driver.
