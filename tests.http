@@ -57,8 +57,26 @@ GET {{baseUrl}}/rides?date=2026-04-01
 ### 8. Filter Rides by Destination AND Date
 GET {{baseUrl}}/rides?destination=Paris&date=2024-06-15
 
-### 7. Get Specific Ride Details (Success)
-# Remplace '1' par un ID qui existe réellement dans ta base SQL
+### 9. Get Specific Ride Details (Success)
 GET {{baseUrl}}/rides/RIDE-001
 Accept: application/json
 
+### 10. UPDATE a Ride (PUT)
+PUT {{baseUrl}}/api/rides/RIDE-001
+Content-Type: application/json
+
+{
+    "destination": "Lyon",
+    "date_": "2026-07-15",
+    "departureTime": "10:30:00",
+    "price": 35,
+    "availableSeats": 2,
+    "goldCardNumber": 101
+}
+
+### 11. DELETE a Ride
+DELETE {{baseUrl}}/api/rides/RIDE-004
+
+### 12. Get all rides offered by a specific driver
+GET {{baseUrl}}/users/102/rides
+Accept: application/json
