@@ -153,7 +153,7 @@ app.get('/rides', (req, res) => {
     let sql = `
         SELECT r.rideID, r.destination, r.departureTime, r.price, r.availableSeats, u.name AS driverName 
         FROM Ride r
-        JOIN User u ON r.driverID = u.goldCardNumber
+        JOIN User u ON r.goldCardNumber = u.goldCardNumber
         WHERE r.availableSeats > 0`;
     
     let params = [];
@@ -163,7 +163,7 @@ app.get('/rides', (req, res) => {
         params.push(destination);
     }
     if (date) {
-        sql += " AND r.date = ?";
+        sql += " AND r.date_ = ?";
         params.push(date);
     }
 
@@ -181,24 +181,44 @@ app.get('/rides', (req, res) => {
 app.post('/rides', (req, res) => {
     const { destination, date_, departureTime, price, availableSeats, goldCardNumber } = req.body;
 
-    // Ensure driver is verified before posting
+    // Step 1: Verify driver profile
     const verifySql = "SELECT profileVerified FROM User WHERE goldCardNumber = ?";
-    
     db.query(verifySql, [goldCardNumber], (err, results) => {
         if (err || results.length === 0 || !results[0].profileVerified) {
             return res.status(403).json({ error: "Only verified drivers can post rides" });
         }
 
-        const sql = `INSERT INTO Ride (destination, date, departureTime, price, availableSeats, driverID) 
-                     VALUES (?, ?, ?, ?, ?, ?)`;
-        const values = [destination, date_, departureTime, price, availableSeats, goldCardNumber];
+        // Step 2: Get the last rideID
+        const maxIdSql = "SELECT MAX(rideID) AS lastId FROM Ride";
+        db.query(maxIdSql, (err, maxResult) => {
+            if (err) return res.status(500).json({ error: "Database error during ID fetch" });
 
-        db.query(sql, values, (err, result) => {
-            if (err) {
-                console.error("Post Ride Error:", err);
-                return res.status(500).json({ error: "Failed to create ride" });
+            let nextId = "RIDE-001"; // Default ID if the table is empty
+
+            if (maxResult[0].lastId) {
+                // Extract the numeric part (e.g., "001" from "RIDE-001")
+                const lastIdString = maxResult[0].lastId; 
+                const numericPart = parseInt(lastIdString.split('-')[1]); // Converts "001" to number 1
+                
+                const nextNumber = numericPart + 1; // Increment (1 + 1 = 2)
+
+                // Format back to "RIDE-XXX" with leading zeros
+                // padStart(3, '0') transforms 2 into "002"
+                nextId = `RIDE-${nextNumber.toString().padStart(3, '0')}`;
             }
-            res.status(201).json({ message: "Ride created successfully", rideID: result.insertId });
+
+            // Step 3: Insert into database
+            const sql = `INSERT INTO Ride (rideID, destination, date_, departureTime, price, availableSeats, goldCardNumber) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?)`;
+            const values = [nextId, destination, date_, departureTime, price, availableSeats, goldCardNumber];
+
+            db.query(sql, values, (err, result) => {
+                if (err) {
+                    console.error("Post Ride Error:", err);
+                    return res.status(500).json({ error: "Failed to create ride" });
+                }
+                res.status(201).json({ message: "Ride created successfully", rideID: nextId });
+            });
         });
     });
 });
@@ -210,7 +230,7 @@ app.get('/rides/:id', (req, res) => {
     
     // Returns full ride object including the fields specified
     const sql = `
-        SELECT destination, date AS date_, departureTime, price, availableSeats, driverID AS goldCardNumber 
+        SELECT destination, date_ AS date_, departureTime, price, availableSeats, goldCardNumber AS goldCardNumber 
         FROM Ride 
         WHERE rideID = ?`;
 
