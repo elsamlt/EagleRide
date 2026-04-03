@@ -30,6 +30,12 @@ db.connect(err => {
     console.log("Connected to Alwaysdata database successfully.");
 });
 
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
 // --- POST /auth/register ---
 // Description: Creates a new user account with mandatory preferences.
 app.post('/auth/register', async (req, res) => {
@@ -145,6 +151,28 @@ app.post('/auth/login', (req, res) => {
     });
 });
 
+// --- GET /users/:id ---
+// Description: Returns profile details for a specific user using goldCardNumber.
+app.get('/users/:id', (req, res) => {
+    const userId = req.params.id;
+    // Selecting fields based on the MCD attributes
+    const sql = "SELECT goldCardNumber, name, email, prefersMusic, prefersConversation, prefersPets, prefersSmoke, numberStars FROM User WHERE goldCardNumber = ?";
+
+    db.query(sql, [userId], (err, result) => {
+        if (err) {
+            console.error("Fetch User SQL Error:", err);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Send back the first (and only) result
+        res.status(200).json(result[0]);
+    });
+});
+
 // --- GET /rides ---
 // Description: Returns a list of all available rides
 app.get('/rides', (req, res) => {
@@ -251,34 +279,6 @@ app.get('/rides/:id', (req, res) => {
 
 });
 
-// --- GET /users/:id ---
-// Description: Returns profile details for a specific user using goldCardNumber.
-app.get('/users/:id', (req, res) => {
-    const userId = req.params.id;
-    // Selecting fields based on the MCD attributes
-    const sql = "SELECT goldCardNumber, name, email, prefersMusic, prefersConversation, prefersPets, prefersSmoke, numberStars FROM User WHERE goldCardNumber = ?";
-
-    db.query(sql, [userId], (err, result) => {
-        if (err) {
-            console.error("Fetch User SQL Error:", err);
-            return res.status(500).json({ error: "Internal server error" });
-        }
-
-        if (result.length === 0) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        // Send back the first (and only) result
-        res.status(200).json(result[0]);
-    });
-});
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
-
 //DELETE ride by ID
 app.delete('/api/rides/:id', (req, res) => {
     //gets ID from parameter
@@ -300,44 +300,61 @@ app.delete('/api/rides/:id', (req, res) => {
 
 });
 
-//PUT update ride by ID
-app.put('/api/rides/:id'), (req, res) => {
+// --- PUT update ride by ID ---
+// Description: Updates an existing ride's details
+app.put('/api/rides/:id', (req, res) => {
     const rideID = req.params.id;
-    const { userID, startLocation, endLocation, rideDate } = req.body;
+    // We use the column names from your database schema
+    const { destination, date_, departureTime, price, availableSeats, goldCardNumber } = req.body;
 
-    //makes sure we aren't updating empty values
-    if (!userID || !startLocation || !endLocation || !rideDate){
+    // Validation: Check if all required fields are present
+    if (!destination || !date_ || !departureTime || !price || !availableSeats || !goldCardNumber) {
         return res.status(400).json({ Error: "Missing Required Fields" });
     }
 
-    const sql = "UPDATE Ride SET userID = ?, startLocation = ?, endLocation = ?, rideDate = ? WHERE rideID = ?";
-    //order must match this order in SQL statement
-    db.query(sql, [userID, startLocation, endLocation, rideDate, rideID], (err, result) => {
+    // SQL query using your actual column names
+    const sql = `
+        UPDATE Ride 
+        SET destination = ?, date_ = ?, departureTime = ?, price = ?, availableSeats = ?, goldCardNumber = ? 
+        WHERE rideID = ?`;
+    
+    const values = [destination, date_, departureTime, price, availableSeats, goldCardNumber, rideID];
+
+    db.query(sql, values, (err, result) => {
         if (err) {
-            console.error("SQL Error: ", err);
+            console.error("SQL Error during update: ", err);
             return res.status(500).json({ Error: "Internal Server Error" });
         }
-        //checking if ride exists
+        
+        // Check if the rideID existed in the database
         if (result.affectedRows === 0) {
-            return res.status(404).json({ Error: "Ride not found" });
+            return res.status(404).json({ Error: `Ride with ID ${rideID} not found` });
         }
+        
         res.json({ Message: `Ride with ID: ${rideID} has been updated successfully` });
-
     });
+});
 
-    //GET ride by ID
-    app.get('/api/rides/:id', (req, res) => {
-        const rideID = req.params.id;
-        const sql = "SELECT * FROM Ride WHERE rideID = ?";
+// --- GET /users/:id/rides ---
+// Description: Returns all rides offered by a specific driver (goldCardNumber)
+app.get('/users/:id/rides', (req, res) => {
+    const goldCardNumber = req.params.id;
 
-        db.query(sql, [rideID], (err, result) => {
-            if (err) {
-                console.error("SQL Error: ", err);
-                return res.status(500).json({ Error: "Internal Server Error" });
-            }
-            //returns list
-            res.json(result);
-        });
+    // SQL query to find all rides linked to this driver
+    const sql = `
+        SELECT rideID, destination, date_, departureTime, price, availableSeats 
+        FROM Ride 
+        WHERE goldCardNumber = ?
+        ORDER BY date_ DESC, departureTime DESC`;
+
+    db.query(sql, [goldCardNumber], (err, results) => {
+        if (err) {
+            console.error("Fetch Driver Rides Error:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        // Even if the driver has no rides, we return an empty array [] (status 200)
+        res.status(200).json(results);
     });
+});
 
-}
