@@ -31,3 +31,34 @@ Content-Type: application/json
 
 ### 3. Get User Profile (Replace :id with a real goldCardNumber)
 GET {{baseUrl}}/users/55501
+
+### 4. Create a Ride 
+POST {{baseUrl}}/rides
+Content-Type: application/json
+
+{
+    "departureTime": "2:00:00",
+    "date_": "2026-06-15",
+    "destination": "Test",
+    "availableSeats": 4,
+    "price": 30,
+    "goldCardNumber": 102
+}
+
+### 5. Get All Available Rides (Ta route actuelle)
+GET {{baseUrl}}/rides
+
+### 6. Filter Rides by Destination
+GET {{baseUrl}}/rides?destination=Paris
+
+### 7. Filter Rides by Date
+GET {{baseUrl}}/rides?date=2026-04-01
+
+### 8. Filter Rides by Destination AND Date
+GET {{baseUrl}}/rides?destination=Paris&date=2024-06-15
+
+### 7. Get Specific Ride Details (Success)
+# Remplace '1' par un ID qui existe réellement dans ta base SQL
+GET {{baseUrl}}/rides/RIDE-001
+Accept: application/json
+

@@ -144,6 +144,112 @@ app.post('/auth/login', (req, res) => {
     });
 });
 
+// --- GET /rides ---
+// Description: Returns a list of all available rides
+app.get('/rides', (req, res) => {
+    const { destination, date } = req.query;
+
+    // only show rides with available seats
+    let sql = `
+        SELECT r.rideID, r.destination, r.departureTime, r.price, r.availableSeats, u.name AS driverName 
+        FROM Ride r
+        JOIN User u ON r.goldCardNumber = u.goldCardNumber
+        WHERE r.availableSeats > 0`;
+    
+    let params = [];
+
+    if (destination) {
+        sql += " AND r.destination = ?";
+        params.push(destination);
+    }
+    if (date) {
+        sql += " AND r.date_ = ?";
+        params.push(date);
+    }
+
+    db.query(sql, params, (err, results) => {
+        if (err) {
+            console.error("Fetch Rides Error:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+        res.status(200).json(results);
+    });
+});
+
+// --- POST /rides ---
+// Description: Creates a new ride (Driver only)
+app.post('/rides', (req, res) => {
+    const { destination, date_, departureTime, price, availableSeats, goldCardNumber } = req.body;
+
+    // Step 1: Verify driver profile
+    const verifySql = "SELECT profileVerified FROM User WHERE goldCardNumber = ?";
+    db.query(verifySql, [goldCardNumber], (err, results) => {
+        if (err || results.length === 0 || !results[0].profileVerified) {
+            return res.status(403).json({ error: "Only verified drivers can post rides" });
+        }
+
+        // Step 2: Get the last rideID
+        const maxIdSql = "SELECT MAX(rideID) AS lastId FROM Ride";
+        db.query(maxIdSql, (err, maxResult) => {
+            if (err) return res.status(500).json({ error: "Database error during ID fetch" });
+
+            let nextId = "RIDE-001"; // Default ID if the table is empty
+
+            if (maxResult[0].lastId) {
+                // Extract the numeric part (e.g., "001" from "RIDE-001")
+                const lastIdString = maxResult[0].lastId; 
+                const numericPart = parseInt(lastIdString.split('-')[1]); // Converts "001" to number 1
+                
+                const nextNumber = numericPart + 1; // Increment (1 + 1 = 2)
+
+                // Format back to "RIDE-XXX" with leading zeros
+                // padStart(3, '0') transforms 2 into "002"
+                nextId = `RIDE-${nextNumber.toString().padStart(3, '0')}`;
+            }
+
+            // Step 3: Insert into database
+            const sql = `INSERT INTO Ride (rideID, destination, date_, departureTime, price, availableSeats, goldCardNumber) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?)`;
+            const values = [nextId, destination, date_, departureTime, price, availableSeats, goldCardNumber];
+
+            db.query(sql, values, (err, result) => {
+                if (err) {
+                    console.error("Post Ride Error:", err);
+                    return res.status(500).json({ error: "Failed to create ride" });
+                }
+                res.status(201).json({ message: "Ride created successfully", rideID: nextId });
+            });
+        });
+    });
+});
+
+// --- GET /rides/:id ---
+// Description: Returns details of one specific ride
+app.get('/rides/:id', (req, res) => {
+    const rideId = req.params.id;
+    
+    // Returns full ride object including the fields specified
+    const sql = `
+        SELECT destination, date_ AS date_, departureTime, price, availableSeats, goldCardNumber AS goldCardNumber 
+        FROM Ride 
+        WHERE rideID = ?`;
+
+    db.query(sql, [rideId], (err, result) => {
+        if (err) {
+            console.error("Fetch Ride Detail Error:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+        
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Ride not found" });
+        }
+        
+        // Returns the single ride object
+        res.status(200).json(result[0]);
+    });
+
+});
+
 // --- GET /users/:id ---
 // Description: Returns profile details for a specific user using goldCardNumber.
 app.get('/users/:id', (req, res) => {
