@@ -6,7 +6,7 @@ const routes = [
     path: '/',
     component: () => import('@/layouts/MainLayout.vue'),
     // Meta: All nested routes in this layout require the user to be logged in
-    meta: { requiresAuth: true },
+    // meta: { requiresAuth: true },
     children: [
       { path: '', name: 'Home', component: () => import('@/views/HomeView.vue') },
       { path: 'profile', name: 'Profile', component: () => import('@/views/ProfileView.vue') },
