@@ -8,7 +8,7 @@
         <p class="metadata">
           {{ ride.dateText }} at {{ ride.departureTime }} - {{ ride.availableSeats }} seats left
         </p>
-        
+
         <div class="driver-row">
           <div class="avatar">{{ driverInitial }}</div>
           <span class="driver-name">by {{ ride.driverName }}</span>
@@ -16,8 +16,8 @@
       </div>
 
       <div class="actions-section">
-        <button 
-          v-if="viewMode === 'dashboard'" 
+        <button
+          v-if="viewMode === 'dashboard'"
           class="btn-cancel"
           @click="$emit('cancel', ride.id)"
         >
@@ -34,14 +34,14 @@
 
 <script setup>
 import { computed } from 'vue';
-import AppButton from '@/components/common/AppButton.vue';
+import AppButton from '@/components/AppButton.vue';
 
 const props = defineProps({
   ride: { type: Object, required: true },
   // 'home' (just Details) or 'dashboard' (Cancel + Details)
-  viewMode: { 
-    type: String, 
-    default: 'home' 
+  viewMode: {
+    type: String,
+    default: 'home'
   }
 });
 
@@ -60,7 +60,7 @@ const driverInitial = computed(() => {
   border: 1px solid #eee;
   padding: 20px;
   /* The gold bar on the left */
-  border-left: 8px solid var(--juniata-gold); 
+  border-left: 8px solid var(--juniata-gold);
 }
 
 .card-body {
