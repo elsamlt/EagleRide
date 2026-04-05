@@ -45,7 +45,7 @@ const handleLogout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0rem 2rem;
+  padding: 3px 2rem;
 }
 
 .logo {
@@ -58,7 +58,7 @@ const handleLogout = () => {
 }
 
 .logo-icon {
-  height: 60px;
+  height: 40px;
   width: auto;
   object-fit: contain;
 }
