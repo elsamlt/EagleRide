@@ -1,4 +1,10 @@
+<script setup>
+import NavBar from '@/components/NavBar.vue'
+
+</script>
+
 <template>
+  <NavBar />
   <div class="auth-layout">
     <div class="auth-header">
       <img src="@/assets/logo-juniata.png" alt="Juniata Logo" class="big-logo">
@@ -11,7 +17,6 @@
 <style scoped>
 .auth-layout {
   min-height: 100vh;
-  background-color: var(--juniata-blue);
   display: flex;
   flex-direction: column;
   align-items: center;
