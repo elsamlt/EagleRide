@@ -1,7 +1,7 @@
 <template>
   <div class="home-container">
     <div class="content-grid">
-      
+
       <aside class="search-sidebar">
         <SearchForm @search="handleSearch" />
       </aside>
@@ -20,12 +20,12 @@
 
         <div v-else v-for="group in groupedRides" :key="group.date" class="date-group">
           <h2 class="date-header">{{ formatGroupDate(group.date) }}</h2>
-          
+
           <div class="cards-stack">
-            <RideCard 
-              v-for="ride in group.rides" 
-              :key="ride.rideID" 
-              :ride="ride" 
+            <RideCard
+              v-for="ride in group.rides"
+              :key="ride.rideID"
+              :ride="ride"
               @view-details="openDetails(ride.rideID)"
             />
           </div>
@@ -37,9 +37,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import SearchForm from '@/components/forms/SearchForm.vue';
-import RideCard from '@/components/cards/RideCard.vue';
-import AppButton from '@/components/common/AppButton.vue';
+import SearchForm from '@/components/SearchForm.vue';
+import RideCard from '@/components/RideCard.vue';
+import AppButton from '@/components/AppButton.vue';
 
 // --- Reactive State ---
 const rawRides = ref([]); // Data from SQL API
@@ -52,7 +52,7 @@ const groupedRides = computed(() => {
 
   // Apply search filtering if criteria exists
   if (filterCriteria.value) {
-    filtered = filtered.filter(r => 
+    filtered = filtered.filter(r =>
       r.destination.toLowerCase().includes(filterCriteria.value.destination.toLowerCase())
     );
   }
@@ -76,7 +76,7 @@ const groupedRides = computed(() => {
 const formatGroupDate = (dateStr) => {
   const today = new Date().toISOString().split('T')[0];
   if (dateStr === today) return 'Today';
-  
+
   const options = { day: 'numeric', month: 'long' };
   return new Date(dateStr).toLocaleDateString('en-US', options);
 };
