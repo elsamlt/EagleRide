@@ -1,22 +1,33 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth' // Import the store to check authentication state
+import { useAuthStore } from '@/stores/auth'
 
 const routes = [
+  // --- MAIN LAYOUT ---
   {
     path: '/',
     component: () => import('@/layouts/MainLayout.vue'),
-    // Meta: All nested routes in this layout require the user to be logged in
-    // meta: { requiresAuth: true },
     children: [
-      { path: '', name: 'Home', component: () => import('@/views/HomeView.vue') },
-      { path: 'profile', name: 'Profile', component: () => import('@/views/ProfileView.vue') },
-      { path: 'my-drives', name: 'MyDrives', component: () => import('@/views/MyDrives.vue') }
+      { path: '', name: 'Home', component: () => import('@/views/HomeView.vue') }
     ]
   },
+
+  // --- PROFILE LAYOUT ---
+  {
+    path: '/dashboard',
+    component: () => import('@/layouts/ProfileLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      { path: 'profile', name: 'Profile', component: () => import('@/views/ProfileView.vue') },
+      { path: 'my-drives', name: 'MyDrives', component: () => import('@/views/MyDrives.vue') },
+      { path: 'post-ride', name: 'PostRide', component: () => import('@/views/PostRideView.vue') },
+      { path: 'edit-ride/:id', name: 'EditRide', component: () => import('@/views/EditRideView.vue') }
+    ]
+  },
+
+  // --- AUTH LAYOUT ---
   {
     path: '/auth',
     component: () => import('@/layouts/AuthLayout.vue'),
-    // Meta: These routes are only accessible to guests (not logged in)
     meta: { guestOnly: true },
     children: [
       { path: 'login', name: 'Login', component: () => import('@/views/LoginView.vue') },
@@ -31,22 +42,14 @@ const router = createRouter({
 })
 
 // --- NAVIGATION GUARD ---
-// This function runs before every route change to check permissions
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
-  // 1. If the route (or its parent layout) requires auth and the user is NOT logged in
   if (to.matched.some(record => record.meta.requiresAuth) && !authStore.isLoggedIn) {
-    // Redirect to the login page
     next('/auth/login')
-  }
-  // 2. If the user is ALREADY logged in but tries to access Login or Register pages
-  else if (to.matched.some(record => record.meta.guestOnly) && authStore.isLoggedIn) {
-    // Redirect them back to the Home page
+  } else if (to.matched.some(record => record.meta.guestOnly) && authStore.isLoggedIn) {
     next('/')
-  }
-  // 3. Otherwise, allow the navigation to proceed
-  else {
+  } else {
     next()
   }
 })
