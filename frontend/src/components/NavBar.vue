@@ -18,9 +18,9 @@ const handleLogout = () => {
       <p>EagleRide</p>
     </div>
     <div class="links">
-      <router-link class="link" to="/">Home</router-link>
 
       <template v-if="authStore.useAuthStore">
+        <router-link class="link" to="/">Home</router-link>
         <router-link class="link" to="/profile">Profile</router-link>
 
         <div class="avatar-circle">
