@@ -7,7 +7,8 @@ const routes = [
     path: '/',
     component: () => import('@/layouts/MainLayout.vue'),
     children: [
-      { path: '', name: 'Home', component: () => import('@/views/HomeView.vue') }
+      { path: '', name: 'Home', component: () => import('@/views/HomeView.vue') },
+      { path: 'edit-profile/:id', name: 'EditProfile', component: () => import('@/views/EditProfileView.vue') }
     ]
   },
 
@@ -18,7 +19,6 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       { path: 'profile', name: 'Profile', component: () => import('@/views/ProfileView.vue') },
-      { path: 'my-drives', name: 'MyDrives', component: () => import('@/views/MyDrives.vue') },
       { path: 'post-ride', name: 'PostRide', component: () => import('@/views/PostRideView.vue') },
       { path: 'edit-ride/:id', name: 'EditRide', component: () => import('@/views/EditRideView.vue') }
     ]
