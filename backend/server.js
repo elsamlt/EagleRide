@@ -280,7 +280,7 @@ app.get('/rides/:id', (req, res) => {
 });
 
 //DELETE ride by ID
-app.delete('/api/rides/:id', (req, res) => {
+app.delete('/rides/:id', (req, res) => {
     //gets ID from parameter
     const rideID = req.params.id;
     const sql = "DELETE FROM Ride WHERE rideID = ?";
@@ -302,7 +302,7 @@ app.delete('/api/rides/:id', (req, res) => {
 
 // --- PUT update ride by ID ---
 // Description: Updates an existing ride's details
-app.put('/api/rides/:id', (req, res) => {
+app.put('/rides/:id', (req, res) => {
     const rideID = req.params.id;
     // We use the column names from your database schema
     const { destination, date_, departureTime, price, availableSeats, goldCardNumber } = req.body;
