@@ -19,7 +19,7 @@ const routes = [
     component: () => import('@/layouts/ProfileLayout.vue'),
     meta: { requiresAuth: true },
     children: [
-      { path: 'profile', name: 'Profile', component: () => import('@/views/ProfileView.vue') },
+      { path: '', name: 'Profile', component: () => import('@/views/ProfileView.vue') },
       { path: 'post-ride', name: 'PostRide', component: () => import('@/views/PostRideView.vue') },
       { path: 'edit-ride/:id', name: 'EditRide', component: () => import('@/views/EditRideView.vue') }
     ]

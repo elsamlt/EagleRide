@@ -8,14 +8,14 @@
     </div>
 
     <div class="tabs-nav">
-      <button 
-        :class="['tab-link', activeTab === 'joined' ? 'active' : '']" 
+      <button
+        :class="['tab-link', activeTab === 'joined' ? 'active' : '']"
         @click="activeTab = 'joined'"
       >
         Joined Drives ({{ joinedRides.length }})
       </button>
-      <button 
-        :class="['tab-link', activeTab === 'offers' ? 'active' : '']" 
+      <button
+        :class="['tab-link', activeTab === 'offers' ? 'active' : '']"
         @click="activeTab = 'offers'"
       >
         My Offers ({{ myOffers.length }})
@@ -23,7 +23,7 @@
     </div>
 
     <div class="tab-content">
-      
+
       <div v-if="activeTab === 'joined'">
         <div v-if="joinedRides.length === 0" class="empty-state">
           <p>You have no upcoming rides as a passenger.</p>
@@ -47,7 +47,7 @@
         <div v-else class="rides-list">
           <div v-for="offer in myOffers" :key="offer.id" class="offer-container">
             <RideCard :ride="offer" viewMode="driver" @edit="editOffer" />
-            
+
             <div v-if="offer.pendingRequests?.length > 0" class="requests-box">
               <p class="request-label">PENDING REQUESTS</p>
               <div v-for="req in offer.pendingRequests" :key="req.id" class="request-item">
@@ -71,7 +71,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import RideCard from '@/components/cards/RideCard.vue';
+import RideCard from '@/components/RideCard.vue';
 
 const activeTab = ref('joined'); // 'joined' or 'offers'
 

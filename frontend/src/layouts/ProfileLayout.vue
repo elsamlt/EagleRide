@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <AppNavbar />
+    <Navbar />
 
     <main class="layout-body">
       <div class="content-wrapper">
@@ -18,8 +18,8 @@
 
 <script setup>
 /* English: Importing your existing components */
-import AppNavbar from '@/components/common/AppNavbar.vue';
-import ProfileSummary from '@/components/profile/ProfileSummary.vue';
+import Navbar from '@/components/Navbar.vue';
+import ProfileSummary from '@/components/ProfileSummary.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -52,7 +52,7 @@ const goToSettings = () => {
 .content-wrapper {
   display: grid;
   /* English: 1/3 for sidebar, 2/3 for content */
-  grid-template-columns: 350px 1fr; 
+  grid-template-columns: 350px 1fr;
   gap: 30px;
   align-items: start;
 }

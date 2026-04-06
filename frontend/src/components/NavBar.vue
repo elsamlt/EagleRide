@@ -21,7 +21,7 @@ const handleLogout = () => {
 
       <template v-if="authStore.isLoggedIn">
         <router-link class="link" to="/">Home</router-link>
-        <router-link class="link" to="/profile">Profile</router-link>
+        <router-link class="link" to="/dashboard">Profile</router-link>
 
         <div class="avatar-circle">
           {{ authStore.user?.name?.charAt(0).toUpperCase() || 'F' }}
