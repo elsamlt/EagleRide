@@ -19,7 +19,7 @@ const handleLogout = () => {
     </div>
     <div class="links">
 
-      <template v-if="authStore.useAuthStore">
+      <template v-if="authStore.isLoggedIn">
         <router-link class="link" to="/">Home</router-link>
         <router-link class="link" to="/profile">Profile</router-link>
 
@@ -45,7 +45,7 @@ const handleLogout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0rem 2rem;
+  padding: 3px 2rem;
 }
 
 .logo {
@@ -58,7 +58,7 @@ const handleLogout = () => {
 }
 
 .logo-icon {
-  height: 60px;
+  height: 40px;
   width: auto;
   object-fit: contain;
 }

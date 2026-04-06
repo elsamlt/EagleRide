@@ -7,9 +7,10 @@
   --juniata-gold: #A89968;
   --white: #FFFFFF;
   --light-gray: #F4F4F4;
-  --text-dark: #333333;
+  --text-dark: #757575;
   --juniata-blue-hover: #16314A;
   --white-hover: #f0f0f0;
+  --light-grey: #B3B3B3;
 
   /* Typography */
   --font-main: 'Montserrat', sans-serif;
@@ -20,13 +21,4 @@ body {
   font-family: var(--font-main);
   background-color: var(--light-gray);
   color: var(--text-dark);
-}
-
-.btn-primary {
-  background-color: var(--juniata-blue);
-  color: var(--white);
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
 }

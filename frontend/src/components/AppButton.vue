@@ -30,7 +30,6 @@ defineEmits(['click']);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: 700;
   transition: filter 0.2s ease;
   display: inline-flex;
   align-items: center;
