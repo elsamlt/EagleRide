@@ -38,6 +38,18 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async fetchUserProfile() {
+      try {
+        // On suppose que tu as une méthode dans ton api.js pour GET /users/:id
+        const updatedUser = await userService.getUserProfile(this.user.goldCardNumber);
+
+        this.user = updatedUser; // On met à jour Pinia
+        localStorage.setItem('user', JSON.stringify(this.user)); // On met à jour le cache
+      } catch (error) {
+        console.error("Erreur refresh profil:", error);
+      }
+    },
+
     logout() {
       this.user = null;
       this.token = null;

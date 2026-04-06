@@ -1,7 +1,7 @@
 <template>
   <DashboardLayout>
     <div class="edit-profile-view">
-      
+
       <nav class="navigation-header">
         <button @click="$router.push('/dashboard/profile')" class="back-button">
           <span class="arrow">←</span> Back to Profile
@@ -15,10 +15,10 @@
         </header>
 
         <div v-if="userData">
-          <UserForm 
-            mode="edit" 
+          <UserForm
+            mode="edit"
             :initialData="userData"
-            @success="onUpdateSuccess" 
+            @success="onUpdateSuccess"
           />
         </div>
 
@@ -34,18 +34,17 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import UserForm from '@/components/forms/UserForm.vue';
+import UserForm from '@/components/UserForm.vue';
 
 const router = useRouter();
 const userData = ref(null);
 
 onMounted(async () => {
   try {
-    // Replace with your actual API call: 
+    // Replace with your actual API call:
     // const response = await axios.get('/api/user/profile');
     // userData.value = response.data;
-    
+
     // Mock Data for UI Testing:
     userData.value = {
       fullName: 'Ben Harrison',

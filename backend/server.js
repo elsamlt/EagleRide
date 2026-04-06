@@ -104,48 +104,40 @@ app.post('/auth/register', async (req, res) => {
 // Description: Authenticates a user and generates a session token (JWT).
 app.post('/auth/login', (req, res) => {
     const { email, password } = req.body;
-
     const sql = "SELECT * FROM User WHERE email = ?";
     
     db.query(sql, [email], async (err, results) => {
-        if (err) {
-            console.error("Login SQL Error:", err);
-            return res.status(500).json({ error: "Internal server error" });
-        }
+        if (err) return res.status(500).json({ error: "Internal server error" });
 
-        // If no user found with that email
         if (results.length === 0) {
             return res.status(401).json({ error: "Invalid email or password" });
         }
 
         const user = results[0];
-        // Compare provided password with the hashed password in DB
         const match = await bcrypt.compare(password, user.password);
 
         if (match) {
-            // 1. Generate the JWT Token
-            // We store the goldCardNumber and email in the payload
             const token = jwt.sign(
-                { 
-                    goldCardNumber: user.goldCardNumber, 
-                    email: user.email 
-                },
-                process.env.JWT_SECRET, // Secret key from your .env
-                { expiresIn: '24h' }    // Token expires in 24 hours
+                { goldCardNumber: user.goldCardNumber, email: user.email },
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }
             );
 
-            // 2. Return 200 OK with user details and the token
             res.status(200).json({ 
                 message: "Login successful", 
                 token: token, 
                 user: { 
                     goldCardNumber: user.goldCardNumber, 
                     name: user.name, 
-                    email: user.email 
+                    email: user.email,
+                    prefersMusic: user.prefersMusic,          
+                    prefersConversation: user.prefersConversation, 
+                    prefersPets: user.prefersPets,             
+                    prefersSmoke: user.prefersSmoke,
+                    driverLicense: user.driverLicense           
                 }
             });
         } else {
-            // Password does not match
             res.status(401).json({ error: "Invalid email or password" });
         }
     });
