@@ -13,6 +13,7 @@
         </section>
       </div>
     </main>
+    <AppFooter />
   </div>
 </template>
 
@@ -21,6 +22,7 @@
 import Navbar from '@/components/Navbar.vue';
 import ProfileSummary from '@/components/ProfileSummary.vue';
 import { useRouter } from 'vue-router';
+import AppFooter from '@/components/AppFooter.vue';
 
 const router = useRouter();
 
