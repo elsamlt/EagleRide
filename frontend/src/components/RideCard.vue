@@ -3,15 +3,15 @@
     <div class="card-body">
       <div class="info-section">
         <h3 class="route-title">
-          {{ ride.origin }} <span class="arrow">→</span> {{ ride.destination }}
+          origin <span class="arrow">→</span> destination
         </h3>
         <p class="metadata">
-          {{ ride.dateText }} at {{ ride.departureTime }} - {{ ride.availableSeats }} seats left
+          text at departure - seatsseats left
         </p>
 
         <div class="driver-row">
-          <div class="avatar">{{ driverInitial }}</div>
-          <span class="driver-name">by {{ ride.driverName }}</span>
+          <div class="avatar">initial</div>
+          <span class="driver-name">by </span>
         </div>
       </div>
 
