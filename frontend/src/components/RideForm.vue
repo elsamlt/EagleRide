@@ -35,7 +35,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import AppButton from './common/AppButton.vue';
+import AppButton from './AppButton.vue';
 
 const props = defineProps({
   mode: { type: String, default: 'create' },
