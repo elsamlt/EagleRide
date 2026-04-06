@@ -4,35 +4,45 @@ import { userService } from '@/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
+    // Load initial state from localStorage
     user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
   }),
 
+  getters: {
+    isLoggedIn: (state) => !!state.token,
+  },
+
   actions: {
-    async login(email, password) {
+    async login(credentials) {
       try {
-        // Use the service method
-        const response = await userService.login({ email, password });
+        // We call the API service
+        const response = await userService.login(credentials);
 
-        this.token = response.data.token;
-        this.user = response.data.user;
+        // Since your api.js already does .then(res => res.data),
+        // 'response' IS already the data object { token, user, message }
+        this.token = response.token;
+        this.user = response.user;
 
+        // Save to LocalStorage
         localStorage.setItem('token', this.token);
         localStorage.setItem('user', JSON.stringify(this.user));
 
         return { success: true };
       } catch (error) {
-        return { success: false, error: error.response?.data?.error || "Login failed" };
+        console.error("Store Login Error:", error);
+        return {
+          success: false,
+          error: error.response?.data?.error || "Invalid credentials"
+        };
       }
     },
 
-    async register(userData) {
-      try {
-        const response = await userService.register(userData);
-        return { success: true, data: response.data };
-      } catch (error) {
-        return { success: false, error: error.response?.data?.error };
-      }
+    logout() {
+      this.user = null;
+      this.token = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   }
 })

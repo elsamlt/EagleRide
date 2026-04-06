@@ -17,22 +17,18 @@ const handleLogin = async () => {
   isLoading.value = true
   errorMessage.value = ''
 
-  try {
-    const response = await userService.login({
-      email: email.value,
-      password: password.value
-    })
+  const result = await authStore.login({
+    email: email.value,
+    password: password.value
+  })
 
-    // Store user data and token in Pinia/LocalStorage
-    authStore.login(response.user, response.token)
-
-    router.push('/auth/login')
-  } catch (error) {
-    errorMessage.value = "Invalid email or password"
-    console.error('Login error:', error)
-  } finally {
-    isLoading.value = false
+  if (result.success) {
+    router.push('/')
+  } else {
+    errorMessage.value = result.error
   }
+
+  isLoading.value = false
 }
 </script>
 

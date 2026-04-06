@@ -19,7 +19,7 @@ const handleLogout = () => {
     </div>
     <div class="links">
 
-      <template v-if="authStore.useAuthStore">
+      <template v-if="authStore.isLoggedIn">
         <router-link class="link" to="/">Home</router-link>
         <router-link class="link" to="/profile">Profile</router-link>
 
