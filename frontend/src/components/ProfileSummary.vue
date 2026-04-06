@@ -10,6 +10,7 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
 </script>
 
 <template>
+  <pre>{{ JSON.stringify(user, null, 2) }}</pre>
   <div class="profile-card" v-if="user">
     <div class="header-banner"></div>
 
@@ -22,7 +23,7 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
       <p class="user-email">{{ user.email }}</p>
 
       <div class="badge-verified">
-        <font-awesome-icon icon="user-shield" class="badge-icon" />
+        <i class="material-symbols-outlined">verified_user</i>
         <span>verified Juniata student</span>
       </div>
     </div>
@@ -32,13 +33,19 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
     <div class="preferences">
 
       <div class="pref-item" :class="{ 'is-disabled': !user.prefersPets }">
-        <font-awesome-icon icon="paw" />
+        <i class="material-icons">pets</i>
         <p>{{ user.prefersPets ? 'I\'m okay to travel with pets' : 'I prefer not to travel with animals' }}</p>
       </div>
 
-      <div class="pref-item" :class="{ 'is-disabled': !user.prefersMusic }">
-        <font-awesome-icon icon="music" />
-        <p>{{ user.prefersMusic ? 'We can put on a good playlist' : 'No music during the drive' }}</p>
+      <div class="pref-item" :class="{ 'is-disabled': user.prefersMusic !== 'yes' }">
+        <i v-if="user.prefersMusic === 'yes'" class="material-icons">music_note</i>
+
+        <i v-else class="material-icons">music_off</i>
+
+        <p>
+          {{ user.prefersMusic }}
+          {{ user.prefersMusic === 'yes' ? 'We can put on a good playlist' : 'No music during the drive' }}
+        </p>
       </div>
 
       <div class="pref-item" :class="{ 'is-disabled': !user.prefersConversation }">
@@ -52,7 +59,7 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
       </div>
 
       <div class="pref-item" v-if="user.driverLicense">
-        <font-awesome-icon icon="car-side" />
+        <i class="material-icons">directions_car</i>
         <p>Drive a Toyota Camry (White)</p>
       </div>
     </div>
