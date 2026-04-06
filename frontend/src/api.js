@@ -41,7 +41,7 @@ export const bookingService = {
 }
 
 export const vehicleService = {
-  getByUser: (userId) => api.get(`/users/${userId}/vehicles`),
+  getByUser: (userId) => api.get(`/users/${userId}/vehicle`).then(res => res.data),
   add: (data) => api.post('/vehicles', data)
 }
 

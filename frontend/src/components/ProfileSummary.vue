@@ -1,12 +1,36 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { vehicleService } from '@/api'
+import { useRouter } from 'vue-router';
+import AppButton from './AppButton.vue';
 
+const router = useRouter()
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
+const vehicle = ref(null)
 
 // Get user initial for the avatar
 const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
+
+const goToEditProfile = () => {
+  if (user.value?.goldCardNumber) {
+    router.push(`/edit-profile/${user.value.goldCardNumber}`);
+  }
+};
+
+onMounted(async () => {
+  // Only fetch if the user has a driver license
+  if (user.value?.goldCardNumber && user.value?.driverLicense) {
+    try {
+      const data = await vehicleService.getByUser(user.value.goldCardNumber)
+      vehicle.value = data
+    } catch (error) {
+      console.error("Vehicle fetch error:", error)
+      vehicle.value = null
+    }
+  }
+})
 </script>
 
 <template>
@@ -69,13 +93,19 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
         </p>
       </div>
 
-      <div class="pref-item" v-if="user.driverLicense && user.driverLicense !== 'NULL'">
+      <div class="pref-item" v-if="user.driverLicense && vehicle">
         <i class="material-icons">directions_car</i>
-        <p>Drive a Toyota Camry (White)</p>
+        <p>Drives a {{ vehicle.model }} ({{ vehicle.color }})</p>
       </div>
     </div>
 
-    <button class="btn-edit">Edit Profile Settings</button>
+    <AppButton
+      variant="outline"
+      size="large"
+      @click="goToEditProfile"
+    >
+      Edit Profile Settings
+    </AppButton>
   </div>
 </template>
 
@@ -167,21 +197,4 @@ p{
   font-size: 1.1rem;
   color: var(--text-dark);
 }
-
-/* .btn-edit {
-  margin: 2rem 0;
-  width: 85%;
-  padding: 12px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  color: var(--juniata-blue);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-edit:hover {
-  background: #fcfcfc;
-  border-color: var(--juniata-blue);
-} */
 </style>0

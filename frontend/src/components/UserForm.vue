@@ -46,7 +46,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import AppButton from './common/AppButton.vue';
+import AppButton from './AppButton.vue';
 
 const props = defineProps({ mode: String }); // 'create' or 'edit'
 const isEditMode = computed(() => props.mode === 'edit');
