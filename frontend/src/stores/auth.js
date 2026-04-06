@@ -1,18 +1,48 @@
+// src/stores/auth.js
 import { defineStore } from 'pinia'
+import { userService } from '@/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    isLoggedIn: false,
-    user: null
+    // Load initial state from localStorage
+    user: JSON.parse(localStorage.getItem('user')) || null,
+    token: localStorage.getItem('token') || null,
   }),
+
+  getters: {
+    isLoggedIn: (state) => !!state.token,
+  },
+
   actions: {
-    setUser(userData) {
-      this.user = userData
-      this.isLoggedIn = true
+    async login(credentials) {
+      try {
+        // We call the API service
+        const response = await userService.login(credentials);
+
+        // Since your api.js already does .then(res => res.data),
+        // 'response' IS already the data object { token, user, message }
+        this.token = response.token;
+        this.user = response.user;
+
+        // Save to LocalStorage
+        localStorage.setItem('token', this.token);
+        localStorage.setItem('user', JSON.stringify(this.user));
+
+        return { success: true };
+      } catch (error) {
+        console.error("Store Login Error:", error);
+        return {
+          success: false,
+          error: error.response?.data?.error || "Invalid credentials"
+        };
+      }
     },
+
     logout() {
-      this.user = null
-      this.isLoggedIn = false
+      this.user = null;
+      this.token = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   }
 })
