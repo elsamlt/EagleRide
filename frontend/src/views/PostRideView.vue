@@ -1,7 +1,7 @@
 <template>
   <div class="form-view">
     <button class="back-btn" @click="$router.back()">← Back to dashboard</button>
-    
+
     <div class="form-card">
       <RideForm mode="create" @success="handleSuccess" />
     </div>
@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import RideForm from '@/components/forms/RideForm.vue';
+import RideForm from '@/components/RideForm.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();

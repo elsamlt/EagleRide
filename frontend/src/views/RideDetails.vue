@@ -8,7 +8,7 @@
 
     <div class="details-grid">
       <main class="info-column">
-        
+
         <section class="card route-card">
           <div class="route-visual">
             <div class="stop">
@@ -29,16 +29,16 @@
 
         <section class="card reviews-card">
           <h3 class="section-title">Passenger Reviews</h3>
-          
+
           <div v-if="reviews.length === 0" class="empty-msg">
             No review for the moment
           </div>
-          
+
           <div v-else class="reviews-list">
-            <ReviewItem 
-              v-for="review in reviews" 
-              :key="review.id" 
-              :review="review" 
+            <ReviewItem
+              v-for="review in reviews"
+              :key="review.id"
+              :review="review"
             />
           </div>
         </section>
@@ -70,9 +70,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import DriverProfileCard from '@/components/cards/DriverProfileCard.vue';
-import ReviewItem from '@/components/cards/ReviewItem.vue';
-import AppButton from '@/components/common/AppButton.vue';
+import DriverProfileCard from '@/components/DriverProfileCard.vue';
+import ReviewItem from '@/components/ReviewItem.vue';
+import AppButton from '@/components/AppButton.vue';
 
 const route = useRoute();
 
