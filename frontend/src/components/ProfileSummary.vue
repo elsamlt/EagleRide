@@ -10,7 +10,6 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
 </script>
 
 <template>
-  <pre>{{ JSON.stringify(user, null, 2) }}</pre>
   <div class="profile-card" v-if="user">
     <div class="header-banner"></div>
 
@@ -32,33 +31,45 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
 
     <div class="preferences">
 
-      <div class="pref-item" :class="{ 'is-disabled': !user.prefersPets }">
+      <div class="pref-item">
         <i class="material-icons">pets</i>
-        <p>{{ user.prefersPets ? 'I\'m okay to travel with pets' : 'I prefer not to travel with animals' }}</p>
+
+        <p>
+          {{ user.prefersPets === 'yes' ? 'I\'m okay to travel with pets' : 'I prefer not to travel with animals' }}
+        </p>
       </div>
 
-      <div class="pref-item" :class="{ 'is-disabled': user.prefersMusic !== 'yes' }">
+      <div class="pref-item">
         <i v-if="user.prefersMusic === 'yes'" class="material-icons">music_note</i>
 
         <i v-else class="material-icons">music_off</i>
 
         <p>
-          {{ user.prefersMusic }}
           {{ user.prefersMusic === 'yes' ? 'We can put on a good playlist' : 'No music during the drive' }}
         </p>
       </div>
 
-      <div class="pref-item" :class="{ 'is-disabled': !user.prefersConversation }">
-        <font-awesome-icon icon="microphone" />
-        <p>{{ user.prefersConversation ? "I'm always up for a good conversation" : 'I don\'t speak a lot' }}</p>
+      <div class="pref-item">
+        <i v-if="user.prefersConversation === 'yes'" class="material-icons">mic</i>
+
+        <i v-else class="material-icons">mic_off</i>
+
+        <p>
+          {{ user.prefersConversation === 'yes' ? "I'm always up for a good conversation" : 'I don\'t speak a lot' }}
+        </p>
       </div>
 
-      <div class="pref-item" :class="{ 'is-negative': !user.prefersSmoke }">
-        <font-awesome-icon icon="smoking-ban" />
-        <p>{{ user.prefersSmoke ? 'Smoking allowed' : 'No cigarettes, please' }}</p>
+      <div class="pref-item">
+        <i v-if="user.prefersSmoke === 'yes'" class="material-icons">smoking_rooms</i>
+
+        <i v-else class="material-icons">smoke_free</i>
+
+        <p>
+          {{ user.prefersSmoke === 'yes' ? 'Smoking allowed' : 'No cigarettes, please' }}
+        </p>
       </div>
 
-      <div class="pref-item" v-if="user.driverLicense">
+      <div class="pref-item" v-if="user.driverLicense && user.driverLicense !== 'NULL'">
         <i class="material-icons">directions_car</i>
         <p>Drive a Toyota Camry (White)</p>
       </div>
@@ -70,14 +81,13 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
 
 <style scoped>
 .profile-card {
-  background: white;
+  background: var(--white);
   width: 100%;
-  max-width: 580px;
+  max-width: 500px;
   border-radius: 25px;
   overflow: hidden;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   text-align: center;
-  margin: 2rem auto;
 }
 
 .header-banner {
@@ -94,14 +104,14 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
 .avatar-circle {
   width: 110px;
   height: 110px;
-  background: #f8f9fa;
-  border: 4px solid white;
+  background: var(--light-gray);
+  border: 4px solid var(--white);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2.5rem;
-  color: #a0a0a0;
+  color: var(--text-dark);
   font-weight: bold;
 }
 
@@ -112,7 +122,7 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
 }
 
 .user-email {
-  color: #777;
+  color: var(--text-dark);
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
@@ -121,10 +131,10 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--light-gray);
   padding: 4px 15px;
   border-radius: 20px;
-  color: #c5a059; /* Gold color */
+  color: var(--juniata-gold);
   font-size: 0.8rem;
 }
 
@@ -132,42 +142,33 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
   margin: 2rem auto;
   width: 85%;
   border: 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--light-gray);
+}
+
+p{
+  font-size: 15px;
 }
 
 .preferences {
   text-align: left;
-  padding: 0 40px;
+  padding: 0 60px;
 }
 
 .pref-item {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-bottom: 1rem;
-  color: #555;
+  color: var(--text-dark);
   transition: all 0.3s ease;
 }
 
 .pref-item svg {
   width: 20px;
   font-size: 1.1rem;
-  color: #666;
+  color: var(--text-dark);
 }
 
-/* --- DYNAMIC STATES --- */
-
-/* If preference is False: we fade the item */
-.is-disabled {
-  opacity: 0.4;
-}
-
-/* Specifically for smoking ban when it's "No Smoking" */
-.is-negative svg {
-  color: #d93025; /* Red icon */
-}
-
-.btn-edit {
+/* .btn-edit {
   margin: 2rem 0;
   width: 85%;
   padding: 12px;
@@ -182,5 +183,5 @@ const initial = computed(() => user.value?.name?.charAt(0).toUpperCase() || 'U')
 .btn-edit:hover {
   background: #fcfcfc;
   border-color: var(--juniata-blue);
-}
+} */
 </style>0

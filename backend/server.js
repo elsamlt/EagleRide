@@ -133,7 +133,8 @@ app.post('/auth/login', (req, res) => {
                     prefersMusic: user.prefersMusic,          
                     prefersConversation: user.prefersConversation, 
                     prefersPets: user.prefersPets,             
-                    prefersSmoke: user.prefersSmoke           
+                    prefersSmoke: user.prefersSmoke,
+                    driverLicense: user.driverLicense           
                 }
             });
         } else {
