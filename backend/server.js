@@ -173,6 +173,48 @@ app.get('/users/:id', (req, res) => {
     });
 });
 
+// Route: Get all comments and stars for a specific driver
+app.get('/users/:id/reviews', (req, res) => {
+    const { id } = req.params;
+
+    const sql = `
+        SELECT 
+            r.comment, 
+            r.stars, 
+            u.name AS reviewer_name
+        FROM Review r
+        JOIN Booking b ON r.bookingID = b.bookingID
+        JOIN Books bk  ON b.bookingID = bk.bookingID
+        JOIN User u    ON bk.goldCardNumber = u.goldCardNumber
+        WHERE bk.goldCardNumber = ?
+    `;
+
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error("SQL Error:", err);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+        res.json(result);
+    });
+});
+
+// Route: Get vehicle details linked to a driver
+app.get('/users/:id/vehicle', (req, res) => {
+    const { id } = req.params;
+    const sql = "SELECT * FROM Vehicle WHERE goldCardNumber = ?";
+    
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error("SQL Error:", err);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Vehicle not found" });
+        }
+        res.json(result[0]); // Assuming one vehicle per driver
+    });
+});
+
 // --- GET /rides ---
 // Description: Returns a list of all available rides
 app.get('/rides', (req, res) => {
@@ -358,3 +400,28 @@ app.get('/users/:id/rides', (req, res) => {
     });
 });
 
+// Route: Confirm or modify the booking status
+app.patch('/bookings/:id', (req, res) => {
+    const { id } = req.params; 
+    const { status } = req.body; 
+
+    if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+    }
+
+    const sql = "UPDATE Booking SET status = ? WHERE bookingID = ?";
+
+    db.query(sql, [status, id], (err, result) => {
+        if (err) {
+            console.error("SQL Error:", err);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+
+        // 2. Vérifier si le booking existait bien
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Booking not found" });
+        }
+
+        res.json({ message: "Booking status updated successfully", status });
+    });
+});
