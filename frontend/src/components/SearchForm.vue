@@ -1,6 +1,6 @@
 <template>
   <div class="search-form">
-    <h3>Find a Ride</h3>
+    <h3>Find a Journey</h3>
     <form @submit.prevent="onSearch">
       <div class="input-group">
         <label>To where?</label>
@@ -9,24 +9,24 @@
 
       <div class="input-group">
         <label>When?</label>
-        <input type="date" v-model="date">
+       <input type="date" v-model="date" :min="today">
       </div>
-
-      <button type="submit" class="btn-search">Search</button>
+      <AppButton size="large" type="submit">Search now</AppButton>
     </form>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-
+import AppButton from '@/components/AppButton.vue'
+const today = new Date().toISOString().split('T')[0]
+const emit = defineEmits(['search'])
 // English: Reactive variables for the search criteria
 const destination = ref('')
 const date = ref('')
 
 const onSearch = () => {
-  console.log('Searching for:', destination.value, 'on', date.value)
-  // Team will link this to rideService.getAll() later
+    emit('search', {destination: destination.value,date: date.value})
 }
 </script>
 
@@ -35,7 +35,8 @@ const onSearch = () => {
   background: white;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid #eee;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 h3 { color: var(--juniata-blue); margin-top: 0; }
