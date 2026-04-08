@@ -3,15 +3,15 @@
     <div class="card-body">
       <div class="info-section">
         <h3 class="route-title">
-          origin <span class="arrow">→</span> destination
+          {{ ride.origin }} <span class="arrow">→</span> {{ ride.destination }}
         </h3>
         <p class="metadata">
-          text at departure - seatsseats left
+           {{ ride.departureTime }} - {{ ride.seatsAvailable }} seats left
         </p>
 
         <div class="driver-row">
-          <div class="avatar">initial</div>
-          <span class="driver-name">by </span>
+          <div class="avatar">{{ driverInitial }}</div>
+          <span class="driver-name">by {{ ride.driverName }}</span>        
         </div>
       </div>
 
@@ -59,6 +59,7 @@ const driverInitial = computed(() => {
   position: relative;
   border: 1px solid #eee;
   padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   /* The gold bar on the left */
   border-left: 8px solid var(--juniata-gold);
 }
