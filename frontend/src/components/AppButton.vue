@@ -7,7 +7,12 @@
         'size-large': size === 'large',
         'size-full': size === 'full'
       },
-      variant === 'outline' ? 'outline-variant' : 'primary-variant'
+      'variant',
+      {
+        'size-outline-variant': variant === 'outline',
+        'primary-variant': variant === 'primary',
+        'grey-variant': variant === 'grey'
+      },
     ]"
     @click="$emit('click')"
   >
@@ -54,6 +59,15 @@ defineEmits(['click']);
 .outline-variant:hover {
   background: #fcfcfc;
   border-color: var(--juniata-blue);
+}
+
+/* Variant: Grey (NEW) */
+.grey-variant {
+  background-color: var(--light-gray);
+  color: var(--juniata-blue);
+}
+.grey-variant:hover {
+  background-color: #e2e2e2;
 }
 
 .size-standard { padding: 10px 20px; font-size: 14px; }
