@@ -3,28 +3,24 @@
     <div class="card-body">
       <div class="info-section">
         <h3 class="route-title">
-          {{ ride.origin }} <span class="arrow">→</span> {{ ride.destination }}
+          Juniata <span class="arrow">→</span> Altoona
         </h3>
         <p class="metadata">
-          {{ ride.dateText }} at {{ ride.departureTime }} - {{ ride.availableSeats }} seats left
+           Today at 5:00pm - 3 seats left
         </p>
 
         <div class="driver-row">
-          <div class="avatar">{{ driverInitial }}</div>
-          <span class="driver-name">by {{ ride.driverName }}</span>
+          <div class="avatar">S</div>
+          <span class="driver-name">by Kai Sterling</span>
         </div>
       </div>
 
       <div class="actions-section">
-        <button
-          v-if="viewMode === 'dashboard'"
-          class="btn-cancel"
-          @click="$emit('cancel', ride.id)"
-        >
+        <AppButton v-if="viewMode === 'dashboard'" size="standard" variant="grey"
+          @click="$emit('cancel', ride.id)">
           Cancel
-        </button>
-
-        <AppButton size="standard" @click="$emit('view-details', ride.id)">
+        </AppButton>
+        <AppButton size="standard"">
           Details
         </AppButton>
       </div>
@@ -47,9 +43,9 @@ const props = defineProps({
 
 defineEmits(['view-details', 'cancel']);
 
-const driverInitial = computed(() => {
-  return props.ride.driverName ? props.ride.driverName.charAt(0).toUpperCase() : '?';
-});
+// const driverInitial = computed(() => {
+//   return props.ride.driverName ? props.ride.driverName.charAt(0).toUpperCase() : '?';
+// });
 </script>
 
 <style scoped>
@@ -59,6 +55,7 @@ const driverInitial = computed(() => {
   position: relative;
   border: 1px solid #eee;
   padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   /* The gold bar on the left */
   border-left: 8px solid var(--juniata-gold);
 }
@@ -76,7 +73,7 @@ const driverInitial = computed(() => {
 }
 
 .metadata {
-  color: #888;
+  color: var(--text-dark);
   font-size: 14px;
   margin-bottom: 12px;
 }
@@ -91,13 +88,12 @@ const driverInitial = computed(() => {
   width: 24px;
   height: 24px;
   background: var(--juniata-gold);
-  color: white;
+  color: var(--white);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  font-weight: bold;
 }
 
 .driver-name {
@@ -111,20 +107,4 @@ const driverInitial = computed(() => {
   align-items: center;
 }
 
-/* Style for the Cancel button */
-.btn-cancel {
-  background: #F3F4F6; /* Light gray background like your photo */
-  color: var(--juniata-blue);
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-family: var(--font-main);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-cancel:hover {
-  background: #E5E7EB;
-}
 </style>

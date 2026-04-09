@@ -13,23 +13,25 @@
           Loading amazing journeys...
         </div>
 
-        <div v-else-if="groupedRides.length === 0" class="status-message no-results">
+        <!-- <div v-else-if="groupedRides.length === 0" class="status-message no-results">
           <p>No rides found for this destination or date.</p>
           <AppButton size="standard" @click="resetSearch">View All Rides</AppButton>
-        </div>
+        </div> -->
 
-        <div v-else v-for="group in groupedRides" :key="group.date" class="date-group">
-          <h2 class="date-header">{{ formatGroupDate(group.date) }}</h2>
+        <!-- <div v-else v-for="group in groupedRides" :key="group.date" class="date-group"> -->
+          <!-- <h2 class="date-header">{{ formatGroupDate(group.date) }}</h2> -->
+           <h2 class="date-header">Group date</h2>
 
           <div class="cards-stack">
-            <RideCard
+            <!-- <RideCard
               v-for="ride in group.rides"
               :key="ride.rideID"
               :ride="ride"
               @view-details="openDetails(ride.rideID)"
-            />
+            /> -->
+            <RideCard></RideCard>
           </div>
-        </div>
+        <!-- </div> -->
       </section>
     </div>
   </div>
