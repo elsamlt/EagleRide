@@ -2,7 +2,12 @@
   <button
     :class="[
       'base-button',
-      size === 'large' ? 'large-size' : 'standard-size'
+      {
+        'size-standard': size === 'standard',
+        'size-large': size === 'large',
+        'size-full': size === 'full'
+      },
+      variant === 'outline' ? 'outline-variant' : 'primary-variant'
     ]"
     @click="$emit('click')"
   >
@@ -12,43 +17,58 @@
 
 <script setup>
 defineProps({
-  // Size can be 'standard' or 'large'
-  size: {
-    type: String,
-    default: 'standard'
-  }
+  size: { type: String, default: 'standard' },
+  // variant can be 'primary' (blue) or 'outline' (white/edit style)
+  variant: { type: String, default: 'primary' }
 });
 defineEmits(['click']);
 </script>
 
 <style scoped>
 .base-button {
-  /* Using your CSS variables */
-  background-color: var(--juniata-blue);
-  color: var(--white);
   font-family: var(--font-main);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: filter 0.2s ease;
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-.base-button:hover {
+/* Variant: Primary (Blue) */
+.primary-variant {
+  background-color: var(--juniata-blue);
+  color: var(--white);
+}
+.primary-variant:hover {
   filter: brightness(1.2);
 }
 
-.standard-size {
-  padding: 10px 20px;
-  font-size: 14px;
+/* Variant: Outline (Your .btn-edit style) */
+.outline-variant {
+  background: white;
+  border: 1px solid #ddd;
+  color: var(--juniata-blue);
+}
+.outline-variant:hover {
+  background: #fcfcfc;
+  border-color: var(--juniata-blue);
 }
 
-.large-size {
-  width: 100%;
-  padding: 15px 30px;
+.size-standard { padding: 10px 20px; font-size: 14px; }
+
+.size-large {
+  width: 85%;
+  margin: 2rem auto;
+  padding: 12px;
   font-size: 16px;
   border-radius: 12px;
+}
+
+.size-full{
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
 }
 </style>

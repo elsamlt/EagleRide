@@ -62,7 +62,7 @@ GET {{baseUrl}}/rides/RIDE-001
 Accept: application/json
 
 ### 10. UPDATE a Ride (PUT)
-PUT {{baseUrl}}/api/rides/RIDE-001
+PUT {{baseUrl}}/rides/RIDE-001
 Content-Type: application/json
 
 {
@@ -75,8 +75,24 @@ Content-Type: application/json
 }
 
 ### 11. DELETE a Ride
-DELETE {{baseUrl}}/api/rides/RIDE-004
+DELETE {{baseUrl}}/rides/RIDE-004
 
 ### 12. Get all rides offered by a specific driver
 GET {{baseUrl}}/users/102/rides
 Accept: application/json
+
+### 13. Get all comments and stars for a specific driver
+GET {{baseUrl}}/users/55501/vehicle
+Accept: application/json
+
+### 14. Get all comments and stars for a specific driver
+GET {{baseUrl}}/users/102/reviews
+Accept: application/json
+
+### Confirm or modify the booking status
+PATCH {{baseUrl}}/bookings/BOOK-501
+Content-Type: application/json
+
+{
+    "status": "confirmed"
+}
