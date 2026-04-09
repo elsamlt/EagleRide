@@ -2,7 +2,11 @@
   <button
     :class="[
       'base-button',
-      size === 'large' ? 'large-size' : 'standard-size',
+      {
+        'size-standard': size === 'standard',
+        'size-large': size === 'large',
+        'size-full': size === 'full'
+      },
       variant === 'outline' ? 'outline-variant' : 'primary-variant'
     ]"
     @click="$emit('click')"
@@ -30,7 +34,6 @@ defineEmits(['click']);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
 }
 
 /* Variant: Primary (Blue) */
@@ -53,13 +56,19 @@ defineEmits(['click']);
   border-color: var(--juniata-blue);
 }
 
-.standard-size { padding: 10px 20px; font-size: 14px; }
+.size-standard { padding: 10px 20px; font-size: 14px; }
 
-.large-size {
+.size-large {
   width: 85%;
   margin: 2rem auto;
   padding: 12px;
   font-size: 16px;
   border-radius: 12px;
+}
+
+.size-full{
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
 }
 </style>

@@ -18,7 +18,7 @@
           :min="today"
         >
       </div>
-      <AppButton size="large" type="submit">Search now</AppButton>
+      <AppButton size="full" type="submit">Search now</AppButton>
     </form>
   </div>
 </template>
