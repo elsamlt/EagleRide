@@ -4,12 +4,19 @@
     <form @submit.prevent="onSearch">
       <div class="input-group">
         <label>To where?</label>
-        <input type="text" v-model="destination" placeholder="Enter destination">
+        <input type="text" v-model="destination" placeholder="Walmart, State College...">
       </div>
 
       <div class="input-group">
         <label>When?</label>
-       <input type="date" v-model="date" :min="today">
+        <input
+          type="text"
+          v-model="date"
+          placeholder="MM/DD/YYYY"
+          onfocus="(this.type='date')"
+          onblur="if(!this.value)this.type='text'"
+          :min="today"
+        >
       </div>
       <AppButton size="large" type="submit">Search now</AppButton>
     </form>
@@ -21,7 +28,7 @@ import { ref } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 const today = new Date().toISOString().split('T')[0]
 const emit = defineEmits(['search'])
-// English: Reactive variables for the search criteria
+
 const destination = ref('')
 const date = ref('')
 
@@ -32,7 +39,7 @@ const onSearch = () => {
 
 <style scoped>
 .search-form {
-  background: white;
+  background: var(--white);
   padding: 2rem;
   border-radius: 12px;
   border: 1px solid #eee;
@@ -43,7 +50,7 @@ h3 { color: var(--juniata-blue); margin-top: 0; }
 
 .input-group { margin-bottom: 1.5rem; }
 
-label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+label { color: black; font-size: 15px;}
 
 input {
   width: 100%;
@@ -53,19 +60,8 @@ input {
   box-sizing: border-box;
 }
 
-.btn-search {
-  width: 100%;
-  background-color: var(--juniata-gold);
-  color: var(--juniata-blue);
-  font-weight: bold;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.btn-search:hover {
-  background-color: #e0a51d;
+input::placeholder {
+  color: var(--light-grey);
+  opacity: 1;
 }
 </style>
