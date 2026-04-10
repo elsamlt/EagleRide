@@ -1,16 +1,16 @@
 <template>
   <div class="review-item">
-    <div class="avatar-circle">
-      {{ passengerInitial }}
+    <div class="review-avatar">
+      {{ review.passengerName.charAt(0) }}
     </div>
 
     <div class="review-content">
       <div class="review-header">
         <h4 class="passenger-name">{{ review.passengerName }}</h4>
         <div class="stars-row">
-          <span 
-            v-for="n in 5" 
-            :key="n" 
+          <span
+            v-for="n in 5"
+            :key="n"
             :class="['star', n <= review.rating ? 'filled' : 'empty']"
           >
             ★
@@ -26,8 +26,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-
 /* English: Define props for a single review object */
 const props = defineProps({
   review: {
@@ -42,18 +40,14 @@ const props = defineProps({
     */
   }
 });
-
-/* English: Compute the initial for the avatar */
-const passengerInitial = computed(() => {
-  return props.review.passengerName ? props.review.passengerName.charAt(0).toUpperCase() : '?';
-});
 </script>
 
 <style scoped>
 .review-item {
   display: flex;
   gap: 16px;
-  padding: 15px 0;
+  align-items: flex-start;
+  padding: 16px 0;
   border-bottom: 1px solid #F3F4F6; /* Subtle divider between reviews */
 }
 
@@ -62,7 +56,7 @@ const passengerInitial = computed(() => {
   border-bottom: none;
 }
 
-.avatar-circle {
+.review-avatar {
   width: 44px;
   height: 44px;
   background-color: var(--juniata-blue);
@@ -71,19 +65,21 @@ const passengerInitial = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 16px;
   font-weight: 700;
-  flex-shrink: 0; /* Prevents the circle from squishing */
+  flex-shrink: 0;
 }
 
 .review-content {
-  flex-grow: 1;
+  flex: 1;
 }
 
 .review-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 4px;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .passenger-name {
@@ -95,7 +91,8 @@ const passengerInitial = computed(() => {
 
 .stars-row {
   display: flex;
-  gap: 2px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .star {
@@ -114,6 +111,6 @@ const passengerInitial = computed(() => {
   color: #6B7280;
   font-size: 14px;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.6;
 }
 </style>
