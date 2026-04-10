@@ -15,37 +15,47 @@
 
     <hr class="divider" />
 
-    <ul class="prefs-list">
-      <li class="pref-item">
-        <span class="icon">🚗</span>
-        Drive a {{ driver.vehicle.model }} ({{ driver.vehicle.color }})
-      </li>
+    <div class="preferences">
+      <div class="pref-item" v-if="driver.vehicle">
+        <i class="material-icons">directions_car</i>
+        <p>Drive a {{ driver.vehicle.model }} ({{ driver.vehicle.color }})</p>
+      </div>
 
-      <li class="pref-item" :class="{ 'disabled': !driver.prefs.allowPets }">
-        <span class="icon">{{ driver.prefs.allowPets ? '🐾' : '🚫🐾' }}</span>
-        {{ driver.prefs.allowPets ? "I'm okay to travel with animals" : "I prefer not to travel in the company of animals" }}
-      </li>
+      <div class="pref-item">
+        <i class="material-icons pet-icon">pets</i>
+        <p>
+          {{ driver.prefs.allowPets ? "I'm okay to travel in the company of animals" : "I prefer not to travel in the company of animals" }}
+        </p>
+      </div>
 
-      <li class="pref-item" :class="{ 'disabled': !driver.prefs.allowMusic }">
-        <span class="icon">{{ driver.prefs.allowMusic ? '🎵' : '🔇' }}</span>
-        {{ driver.prefs.allowMusic ? `Music: ${driver.prefs.musicGenre} preferred` : "No music during the drive" }}
-      </li>
+      <div class="pref-item">
+        <i v-if="driver.prefs.allowMusic" class="material-icons">music_note</i>
+        <i v-else class="material-icons">music_off</i>
+        <p>
+          {{ driver.prefs.allowMusic ? `Music: ${driver.prefs.musicGenre} preferred` : "No music during the drive" }}
+        </p>
+      </div>
 
-      <li class="pref-item" :class="{ 'disabled': !driver.prefs.allowChat }">
-        <span class="icon">🗣️</span>
-        {{ driver.prefs.allowChat ? "I'm always up for a good conversation" : "I don't speak a lot" }}
-      </li>
+      <div class="pref-item">
+        <i v-if="driver.prefs.allowChat" class="material-icons">mic</i>
+        <i v-else class="material-icons">mic_off</i>
+        <p>
+          {{ driver.prefs.allowChat ? "I'm always up for a good conversation" : "I don't speak a lot" }}
+        </p>
+      </div>
 
-      <li class="pref-item" :class="{ 'disabled': !driver.prefs.allowSmoking }">
-        <span class="icon">{{ driver.prefs.allowSmoking ? '🚬' : '🚭' }}</span>
-        {{ driver.prefs.allowSmoking ? "You can smoke" : "No cigarettes, please" }}
-      </li>
-    </ul>
+      <div class="pref-item">
+        <i v-if="driver.prefs.allowSmoking" class="material-icons">smoking_rooms</i>
+        <i v-else class="material-icons">smoke_free</i>
+        <p>
+          {{ driver.prefs.allowSmoking ? "You can smoke" : "No cigarettes, please" }}
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-/* English: Define props to receive driver data from the database/API */
 defineProps({
   driver: {
     type: Object,
@@ -66,10 +76,9 @@ defineProps({
 <style scoped>
 .driver-card {
   background: var(--white);
-  border: 1px solid #E5E7EB;
   border-radius: 16px;
   padding: 24px;
-  width: 100%;
+  border: 1px solid #eee;
 }
 
 .card-header {
@@ -83,12 +92,11 @@ defineProps({
   width: 48px;
   height: 48px;
   background-color: var(--juniata-blue);
-  color: white;
+  color: var(--white);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
 }
 
 .driver-name {
@@ -107,12 +115,11 @@ defineProps({
 
 .divider {
   border: none;
-  border-top: 1px solid #F3F4F6;
+  border-top: 1px solid var(--light-gray);
   margin-bottom: 20px;
 }
 
-.prefs-list {
-  list-style: none;
+.preferences {
   padding: 0;
   margin: 0;
   display: flex;
@@ -123,14 +130,31 @@ defineProps({
 .pref-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  color: #6B7280; /* Standard Gray */
+  gap: 14px;
+  color: var(--text-gray);
   font-size: 15px;
 }
 
-/* English: Visual style for negative preferences (V1 vs V2) */
-.pref-item.disabled {
-  color: #9CA3AF; /* Lighter Gray for 'No' options */
+.pref-item p {
+  margin: 0;
+  line-height: 1.4;
+  color: var(--light-grey);
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  min-width: 24px;
+  text-align: center;
+  color: var(--light-grey);
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
 }
 
 .icon {
