@@ -14,8 +14,7 @@
         </div>
 
         <!-- <div v-else-if="groupedRides.length === 0" class="status-message no-results">
-          <p>No rides found for this destination or date.</p>
-          <AppButton size="standard" @click="resetSearch">View All Rides</AppButton>
+          <p>No rides found</p>
         </div> -->
 
         <!-- <div v-else v-for="group in groupedRides" :key="group.date" class="date-group"> -->
