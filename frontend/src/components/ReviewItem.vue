@@ -48,7 +48,7 @@ const props = defineProps({
   gap: 16px;
   align-items: flex-start;
   padding: 16px 0;
-  border-bottom: 1px solid #F3F4F6; /* Subtle divider between reviews */
+  border-bottom: 1px solid var(--light-gray);
 }
 
 /* Remove border from the last item in the list */
@@ -66,7 +66,6 @@ const props = defineProps({
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  font-weight: 700;
   flex-shrink: 0;
 }
 
@@ -86,7 +85,6 @@ const props = defineProps({
   color: var(--juniata-blue);
   margin: 0;
   font-size: 16px;
-  font-weight: 700;
 }
 
 .stars-row {
@@ -104,11 +102,11 @@ const props = defineProps({
 }
 
 .star.empty {
-  color: #D1D5DB; /* Light gray for empty stars */
+  color: var(--white-hover); /* Light gray for empty stars */
 }
 
 .passenger-comment {
-  color: #6B7280;
+  color: var(--text-dark);
   font-size: 14px;
   margin: 0;
   line-height: 1.6;

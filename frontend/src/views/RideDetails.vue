@@ -97,7 +97,7 @@ const driver = ref({
 
 const reviews = ref([
   { id: 1, passengerName: 'Alice Waster', rating: 5, comment: 'Super punctual!' },
-  { id: 2, passengerName: 'Sarah Jenkins', rating: 5, comment: 'Great conversation.' }
+  { id: 2, passengerName: 'Sarah Jenkins', rating: 3, comment: 'Great conversation.' }
 ]);
 
 const formatDate = (d) => {
@@ -149,4 +149,6 @@ const handleBooking = () => {
 .price { color: var(--text-dark); font-size: 20px; }
 
 .back-link { background: none; border: none; color: #9CA3AF; cursor: pointer; }
+
+.section-title { color: var(--juniata-blue); margin-bottom: 16px; font-size: 20px; }
 </style>
