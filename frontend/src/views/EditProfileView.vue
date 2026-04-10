@@ -1,34 +1,23 @@
 <template>
-  <DashboardLayout>
+  <!-- <DashboardLayout> -->
     <div class="edit-profile-view">
 
       <nav class="navigation-header">
-        <button @click="$router.push('/dashboard/profile')" class="back-button">
+        <button @click="$router.push('/dashboard')" class="back-button">
           <span class="arrow">←</span> Back to Profile
         </button>
       </nav>
 
       <div class="form-card">
-        <header class="form-header">
-          <h1 class="form-title">Edit Your Account</h1>
-          <p class="form-subtitle">Keep your information up to date</p>
-        </header>
-
-        <div v-if="userData">
-          <UserForm
-            mode="edit"
-            :initialData="userData"
-            @success="onUpdateSuccess"
-          />
-        </div>
-
-        <div v-else class="loading-state">
-          <p>Loading your profile details...</p>
-        </div>
+        <UserForm
+          mode="edit"
+          :initialData="userData"
+          @success="onUpdateSuccess"
+        />
       </div>
 
     </div>
-  </DashboardLayout>
+  <!-- </DashboardLayout> -->
 </template>
 
 <script setup>
@@ -73,7 +62,7 @@ const onUpdateSuccess = () => {
 
 <style scoped>
 .edit-profile-view {
-  max-width: 1000px; /* Slightly wider to accommodate two columns in UserForm */
+  max-width: 1200px; /* Slightly wider to accommodate two columns in UserForm */
   margin: 0 auto;
 }
 

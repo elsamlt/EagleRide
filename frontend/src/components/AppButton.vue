@@ -51,12 +51,12 @@ defineEmits(['click']);
 }
 
 /* Variant: Outline (Your .btn-edit style) */
-.outline-variant {
+.size-outline-variant {
   background: white;
   border: 1px solid #ddd;
   color: var(--juniata-blue);
 }
-.outline-variant:hover {
+.size-outline-variant:hover {
   background: #fcfcfc;
   border-color: var(--juniata-blue);
 }

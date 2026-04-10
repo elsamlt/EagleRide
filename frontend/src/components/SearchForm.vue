@@ -60,6 +60,12 @@ input {
   box-sizing: border-box;
 }
 
+input:focus {
+  border-color: var(--text-dark);
+  color: var(--text-dark);
+  outline: none;
+}
+
 input::placeholder {
   color: var(--light-grey);
   opacity: 1;
