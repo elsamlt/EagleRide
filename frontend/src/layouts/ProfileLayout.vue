@@ -9,7 +9,7 @@
         </aside>
 
         <section class="main-content">
-          <slot></slot>
+          <router-view />
         </section>
       </div>
     </main>

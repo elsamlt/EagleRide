@@ -50,7 +50,7 @@
 
             <div v-if="offer.pendingRequests?.length > 0" class="requests-box">
               <p class="request-label">PENDING REQUESTS</p>
-              <div v-for="req in offer.pendingRequests" :key="req.id" class="request-item">
+              <!-- <div v-for="req in offer.pendingRequests" :key="req.id" class="request-item"> -->
                 <div class="passenger-info">
                   <span class="avatar">{{ req.name.charAt(0) }}</span>
                   <span>{{ req.name }} ({{ req.rating }}★)</span>
