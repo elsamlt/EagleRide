@@ -70,9 +70,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import DriverProfileCard from '@/components/cards/DriverProfileCard.vue';
-import ReviewItem from '@/components/cards/ReviewItem.vue';
-import AppButton from '@/components/common/AppButton.vue';
+import DriverProfileCard from '@/components/DriverProfileCard.vue';
+import ReviewItem from '@/components/ReviewItem.vue';
+import AppButton from '@/components/AppButton.vue';
 
 const route = useRoute();
 

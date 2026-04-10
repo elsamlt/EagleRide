@@ -15,32 +15,43 @@
 
     <hr class="divider" />
 
-    <ul class="prefs-list">
-      <li class="pref-item">
-        <span class="icon">🚗</span>
-        Drive a {{ driver.vehicle.model }} ({{ driver.vehicle.color }})
-      </li>
+    <div class="preferences">
+      <div class="pref-item" v-if="driver.vehicle">
+        <i class="material-icons">directions_car</i>
+        <p>Drive a {{ driver.vehicle.model }} ({{ driver.vehicle.color }})</p>
+      </div>
 
-      <li class="pref-item" :class="{ 'disabled': !driver.prefs.allowPets }">
-        <span class="icon">{{ driver.prefs.allowPets ? '🐾' : '🚫🐾' }}</span>
-        {{ driver.prefs.allowPets ? "I'm okay to travel with animals" : "I prefer not to travel in the company of animals" }}
-      </li>
+      <div class="pref-item" :class="{ disabled: !driver.prefs.allowPets }">
+        <i class="material-icons pet-icon" :class="{ 'no-pets': !driver.prefs.allowPets }">pets</i>
+        <p>
+          {{ driver.prefs.allowPets ? "I'm okay to travel in the company of animals" : "I prefer not to travel in the company of animals" }}
+        </p>
+      </div>
 
-      <li class="pref-item" :class="{ 'disabled': !driver.prefs.allowMusic }">
-        <span class="icon">{{ driver.prefs.allowMusic ? '🎵' : '🔇' }}</span>
-        {{ driver.prefs.allowMusic ? `Music: ${driver.prefs.musicGenre} preferred` : "No music during the drive" }}
-      </li>
+      <div class="pref-item" :class="{ disabled: !driver.prefs.allowMusic }">
+        <i v-if="driver.prefs.allowMusic" class="material-icons">music_note</i>
+        <i v-else class="material-icons">music_off</i>
+        <p>
+          {{ driver.prefs.allowMusic ? `Music: ${driver.prefs.musicGenre} preferred` : "No music during the drive" }}
+        </p>
+      </div>
 
-      <li class="pref-item" :class="{ 'disabled': !driver.prefs.allowChat }">
-        <span class="icon">🗣️</span>
-        {{ driver.prefs.allowChat ? "I'm always up for a good conversation" : "I don't speak a lot" }}
-      </li>
+      <div class="pref-item" :class="{ disabled: !driver.prefs.allowChat }">
+        <i v-if="driver.prefs.allowChat" class="material-icons">mic</i>
+        <i v-else class="material-icons">mic_off</i>
+        <p>
+          {{ driver.prefs.allowChat ? "I'm always up for a good conversation" : "I don't speak a lot" }}
+        </p>
+      </div>
 
-      <li class="pref-item" :class="{ 'disabled': !driver.prefs.allowSmoking }">
-        <span class="icon">{{ driver.prefs.allowSmoking ? '🚬' : '🚭' }}</span>
-        {{ driver.prefs.allowSmoking ? "You can smoke" : "No cigarettes, please" }}
-      </li>
-    </ul>
+      <div class="pref-item" :class="{ disabled: !driver.prefs.allowSmoking }">
+        <i v-if="driver.prefs.allowSmoking" class="material-icons">smoking_rooms</i>
+        <i v-else class="material-icons">smoke_free</i>
+        <p>
+          {{ driver.prefs.allowSmoking ? "You can smoke" : "No cigarettes, please" }}
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -82,7 +93,7 @@ defineProps({
 .avatar-circle {
   width: 48px;
   height: 48px;
-  background-color: var(--juniata-blue);
+  background-color: #1B365D; /* Yale Blue */
   color: white;
   border-radius: 50%;
   display: flex;
@@ -92,7 +103,7 @@ defineProps({
 }
 
 .driver-name {
-  color: var(--juniata-blue);
+  color: #1B365D; /* Yale Blue */
   margin: 0;
   font-size: 18px;
 }
@@ -101,7 +112,7 @@ defineProps({
   display: flex;
   align-items: center;
   gap: 4px;
-  color: var(--juniata-gold);
+  color: #A89968; /* Old Gold */
   font-size: 14px;
 }
 
@@ -111,8 +122,7 @@ defineProps({
   margin-bottom: 20px;
 }
 
-.prefs-list {
-  list-style: none;
+.preferences {
   padding: 0;
   margin: 0;
   display: flex;
@@ -123,9 +133,48 @@ defineProps({
 .pref-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   color: #6B7280; /* Standard Gray */
   font-size: 15px;
+}
+
+.pref-item p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  min-width: 24px;
+  text-align: center;
+  color: #9CA3AF; /* Light Gray for icons per wireframe */
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.pet-icon {
+  position: relative;
+}
+
+.pet-icon.no-pets::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 2px;
+  background-color: currentColor;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border-radius: 1px;
 }
 
 /* English: Visual style for negative preferences (V1 vs V2) */
