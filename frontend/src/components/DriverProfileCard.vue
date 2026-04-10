@@ -21,14 +21,14 @@
         <p>Drive a {{ driver.vehicle.model }} ({{ driver.vehicle.color }})</p>
       </div>
 
-      <div class="pref-item" :class="{ disabled: !driver.prefs.allowPets }">
-        <i class="material-icons pet-icon" :class="{ 'no-pets': !driver.prefs.allowPets }">pets</i>
+      <div class="pref-item">
+        <i class="material-icons pet-icon">pets</i>
         <p>
           {{ driver.prefs.allowPets ? "I'm okay to travel in the company of animals" : "I prefer not to travel in the company of animals" }}
         </p>
       </div>
 
-      <div class="pref-item" :class="{ disabled: !driver.prefs.allowMusic }">
+      <div class="pref-item">
         <i v-if="driver.prefs.allowMusic" class="material-icons">music_note</i>
         <i v-else class="material-icons">music_off</i>
         <p>
@@ -36,7 +36,7 @@
         </p>
       </div>
 
-      <div class="pref-item" :class="{ disabled: !driver.prefs.allowChat }">
+      <div class="pref-item">
         <i v-if="driver.prefs.allowChat" class="material-icons">mic</i>
         <i v-else class="material-icons">mic_off</i>
         <p>
@@ -44,7 +44,7 @@
         </p>
       </div>
 
-      <div class="pref-item" :class="{ disabled: !driver.prefs.allowSmoking }">
+      <div class="pref-item">
         <i v-if="driver.prefs.allowSmoking" class="material-icons">smoking_rooms</i>
         <i v-else class="material-icons">smoke_free</i>
         <p>
@@ -56,7 +56,6 @@
 </template>
 
 <script setup>
-/* English: Define props to receive driver data from the database/API */
 defineProps({
   driver: {
     type: Object,
@@ -77,10 +76,9 @@ defineProps({
 <style scoped>
 .driver-card {
   background: var(--white);
-  border: 1px solid #E5E7EB;
   border-radius: 16px;
   padding: 24px;
-  width: 100%;
+  border: 1px solid #eee;
 }
 
 .card-header {
@@ -93,17 +91,16 @@ defineProps({
 .avatar-circle {
   width: 48px;
   height: 48px;
-  background-color: #1B365D; /* Yale Blue */
-  color: white;
+  background-color: var(--juniata-blue);
+  color: var(--white);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
 }
 
 .driver-name {
-  color: #1B365D; /* Yale Blue */
+  color: var(--juniata-blue);
   margin: 0;
   font-size: 18px;
 }
@@ -112,13 +109,13 @@ defineProps({
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #A89968; /* Old Gold */
+  color: var(--juniata-gold);
   font-size: 14px;
 }
 
 .divider {
   border: none;
-  border-top: 1px solid #F3F4F6;
+  border-top: 1px solid var(--light-gray);
   margin-bottom: 20px;
 }
 
@@ -134,13 +131,14 @@ defineProps({
   display: flex;
   align-items: center;
   gap: 14px;
-  color: #6B7280; /* Standard Gray */
+  color: var(--text-gray);
   font-size: 15px;
 }
 
 .pref-item p {
   margin: 0;
   line-height: 1.4;
+  color: var(--light-grey);
 }
 
 .material-icons {
@@ -150,36 +148,13 @@ defineProps({
   font-size: 20px;
   min-width: 24px;
   text-align: center;
-  color: #9CA3AF; /* Light Gray for icons per wireframe */
+  color: var(--light-grey);
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
-}
-
-.pet-icon {
-  position: relative;
-}
-
-.pet-icon.no-pets::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 18px;
-  height: 2px;
-  background-color: currentColor;
-  transform: translate(-50%, -50%) rotate(45deg);
-  border-radius: 1px;
-}
-
-/* English: Visual style for negative preferences (V1 vs V2) */
-.pref-item.disabled {
-  color: #9CA3AF; /* Lighter Gray for 'No' options */
 }
 
 .icon {
