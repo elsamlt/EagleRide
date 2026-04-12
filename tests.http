@@ -89,10 +89,34 @@ Accept: application/json
 GET {{baseUrl}}/users/102/reviews
 Accept: application/json
 
-### Confirm or modify the booking status
-PATCH {{baseUrl}}/bookings/BOOK-501
+### 15. Confirm or modify the booking status
+PATCH {{baseUrl}}/bookings/BOOK-503
 Content-Type: application/json
 
 {
-    "status": "confirmed"
+    "status": "cancelled"
 }
+
+### 16. Create a new booking
+POST {{baseUrl}}/bookings
+Content-Type: application/json
+
+{
+    "rideID": "RIDE-001",
+    "goldCardNumber": 55501
+}
+
+### 17. Get ALL bookings for a user
+GET {{baseUrl}}/users/55501/bookings
+
+### 18. Get only CONFIRMED bookings
+GET {{baseUrl}}/users/55501/bookings?status=Confirmed
+
+### 19. Get only CANCELLED bookings
+GET {{baseUrl}}/users/55501/bookings?status=Cancelled
+
+### 20. Get only PENDING bookings
+GET {{baseUrl}}/users/55501/bookings?status=Pending
+
+### 21. Delete a specific booking
+DELETE {{baseUrl}}/bookings/BOOK-505

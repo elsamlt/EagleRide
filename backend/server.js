@@ -417,3 +417,107 @@ app.patch('/bookings/:id', (req, res) => {
         res.json({ message: "Booking status updated successfully", status });
     });
 });
+
+    
+// --- POST /bookings ---
+// Books a seat on a specific ride.
+app.post('/bookings', (req, res) => {
+    const { rideID, goldCardNumber } = req.body;
+
+    if (!rideID || !goldCardNumber) {
+        return res.status(400).json({ error: "Missing rideID or goldCardNumber" });
+    }
+
+    const maxIdSql = "SELECT MAX(bookingID) AS lastId FROM Booking";
+
+    db.query(maxIdSql, (err, maxResult) => {
+        if (err) {
+            console.error("Fetch Max Booking ID Error:", err);
+            return res.status(500).json({ error: "Database error during ID generation" });
+        }
+        let nextBookingId = "BOOK-001";
+
+        if (maxResult[0].lastId) {
+            const lastIdString = maxResult[0].lastId; 
+            const parts = lastIdString.split('-');
+            
+            if (parts.length === 2) {
+                const numericPart = parseInt(parts[1]); 
+                const nextNumber = numericPart + 1;
+                nextBookingId = `BOOK-${nextNumber.toString().padStart(3, '0')}`;
+            }
+        }
+
+        const insertSql = "INSERT INTO Booking (bookingID, rideID, goldCardNumber, status) VALUES (?, ?, ?, 'pending')";
+        
+        db.query(insertSql, [nextBookingId, rideID, goldCardNumber], (err, result) => {
+            if (err) {
+                console.error("Insert Booking Error:", err);
+                return res.status(500).json({ error: "Failed to create booking" });
+            }
+            
+            res.status(201).json({ 
+                message: "Booking successful",
+                bookingID: nextBookingId 
+            });
+        });
+    });
+});
+
+// --- GET /users/:id/bookings ---
+// Returns all rides a user has booked, including status and ride details.
+app.get('/users/:id/bookings', (req, res) => {
+    const goldCardNumber = req.params.id;
+    const { status } = req.query; 
+
+    let sql = `
+        SELECT 
+            b.bookingID, 
+            b.status, 
+            r.rideID, 
+            r.destination, 
+            r.departureTime, 
+            r.availableSeats 
+        FROM Booking b
+        JOIN Ride r ON b.rideID = r.rideID
+        WHERE b.goldCardNumber = ?
+    `;
+
+    const params = [goldCardNumber];
+
+    if (status) {
+        sql += " AND b.status = ?";
+        params.push(status);
+    }
+
+    db.query(sql, params, (err, results) => {
+        if (err) {
+            console.error("SQL Error fetching user bookings:", err);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+        res.status(200).json(results);
+    });
+});
+
+// --- DELETE /bookings/:id ---
+// Delete the booking created (from passenger side).
+app.delete('/bookings/:id', (req, res) => {
+    const bookingID = req.params.id;
+
+    const sql = "DELETE FROM Booking WHERE bookingID = ?";
+    db.query(sql, [bookingID], (err, result) => {
+        if (err) {
+            console.error("SQL Error deleting booking:", err);
+            return res.status(500).json({ error: "Internal server error while deleting booking." });
+        }
+        
+        // Check if a row was actually found and deleted
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Booking not found." });
+        }
+
+        // Return success
+        res.status(200).json({ message: "Booking successfully deleted." });
+    });
+
+});
