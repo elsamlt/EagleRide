@@ -1,10 +1,5 @@
 <template>
   <div class="ride-form-wrapper">
-    <nav class="nav-header">
-      <router-link to="/dashboard" class="back-link">
-        <span class="arrow">←</span> Back to dashboard
-      </router-link>
-    </nav>
 
     <div class="header-section">
       <h1 class="title">{{ pageTitle }}</h1>
@@ -24,17 +19,33 @@
       </div>
 
       <div class="input-row">
-        <div class="input-group">
-          <label for="date">Date</label>
-          <div class="input-with-icon">
-            <input type="date" id="date" v-model="form.date" />
+          <div class="input-group">
+            <label for="date">Date</label>
+            <div class="input-with-icon">
+              <i class="material-icons">calendar_today</i>
+              <input
+                type="text"
+                id="date"
+                v-model="form.date"
+                placeholder="Select date"
+                onfocus="(this.type='date')"
+                onblur="if(!this.value)this.type='text'"
+              />
           </div>
         </div>
 
         <div class="input-group">
           <label for="time">Time</label>
           <div class="input-with-icon">
-            <input type="time" id="time" v-model="form.time" />
+            <i class="material-icons">schedule</i>
+            <input
+              type="text"
+              id="time"
+              v-model="form.time"
+              placeholder="Select time"
+              onfocus="(this.type='time')"
+              onblur="if(!this.value)this.type='text'"
+            />
           </div>
         </div>
       </div>
@@ -65,7 +76,7 @@
       </div>
 
       <div class="form-actions">
-        <AppButton size="large" type="submit" class="submit-button">
+        <AppButton size="large" type="submit">
           {{ buttonLabel }}
         </AppButton>
 
@@ -161,7 +172,7 @@ const handleSubmit = () => {
   margin: 0 auto;
   padding: 40px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #374151;
+  color: var(--text-dark);
 }
 
 .nav-header {
@@ -169,7 +180,7 @@ const handleSubmit = () => {
 }
 
 .back-link {
-  color: #9ca3af;
+  color: var(--light-grey);
   text-decoration: none;
   font-size: 16px;
   display: flex;
@@ -178,7 +189,7 @@ const handleSubmit = () => {
 }
 
 .back-link:hover {
-  color: #6b7280;
+  color: var(--text-dark);
 }
 
 .header-section {
@@ -189,13 +200,13 @@ const handleSubmit = () => {
 .title {
   font-size: 32px;
   font-weight: 700;
-  color: #6b7280;
+  color: var(--text-dark);
   margin: 0 0 8px 0;
 }
 
 .subtitle {
   font-size: 16px;
-  color: #6b7280;
+  color: var(--light-grey);
   margin: 0;
 }
 
@@ -226,7 +237,7 @@ const handleSubmit = () => {
 label {
   font-size: 14px;
   font-weight: 500;
-  color: #111827;
+  color: black;
 }
 
 input[type="text"],
@@ -236,21 +247,21 @@ input[type="number"],
 select {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--light-grey);
   border-radius: 8px;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--light-grey);
   outline: none;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background-color: var(--white);
 }
 
 input::placeholder {
-  color: #9ca3af;
+  color: var(--light-grey);
 }
 
 input:focus, select:focus {
-  border-color: #6b7280;
+  border-color: var(--text-dark);
 }
 
 .price-input-wrapper {
@@ -262,7 +273,7 @@ input:focus, select:focus {
 .currency-symbol {
   position: absolute;
   left: 16px;
-  color: #6b7280;
+  color: var(--light-grey);
   font-size: 14px;
 }
 
@@ -279,27 +290,50 @@ input:focus, select:focus {
   gap: 16px;
 }
 
-.submit-button {
-  width: 400px;
-  background-color: #1e3a8a;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.submit-button:hover {
-  background-color: #1e40af;
-}
-
 .disclaimer {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--light-grey);
   text-align: center;
   margin: 0;
+}
+
+.size-large {
+  margin: 0rem;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon i {
+  position: absolute;
+  left: 12px;
+  font-size: 18px;
+  color: var(--light-grey);
+  pointer-events: none;
+}
+
+.input-with-icon input {
+  padding-left: 40px !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator {
+  display: none;
 }
 </style>
