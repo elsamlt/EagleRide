@@ -12,14 +12,14 @@
     </div>
 
     <form @submit.prevent="handleSubmit" class="form-container">
-      
+
       <div class="input-group full-width">
         <label for="destination">Destination</label>
-        <input 
-          type="text" 
-          id="destination" 
-          v-model="form.destination" 
-          placeholder="e.g State College" 
+        <input
+          type="text"
+          id="destination"
+          v-model="form.destination"
+          placeholder="e.g State College"
         />
       </div>
 
@@ -53,12 +53,12 @@
           <label for="price">Price per Seat</label>
           <div class="price-input-wrapper">
             <span class="currency-symbol">$</span>
-            <input 
-              type="number" 
-              id="price" 
-              step="0.01" 
-              v-model="form.price" 
-              placeholder="0.00" 
+            <input
+              type="number"
+              id="price"
+              step="0.01"
+              v-model="form.price"
+              placeholder="0.00"
             />
           </div>
         </div>
@@ -68,7 +68,7 @@
         <AppButton size="large" type="submit" class="submit-button">
           {{ buttonLabel }}
         </AppButton>
-        
+
         <p v-if="mode === 'create'" class="disclaimer">
           By publishing, you agree to show your car details and preferences to interested passengers.
         </p>
@@ -107,17 +107,17 @@ const form = ref({
 // --- Computed Properties for Dynamic Content ---
 const isEdit = computed(() => props.mode === 'edit');
 
-const pageTitle = computed(() => 
+const pageTitle = computed(() =>
   isEdit.value ? 'Edit Ride Details' : 'Post a New Ride'
 );
 
-const pageSubtitle = computed(() => 
-  isEdit.value 
-    ? 'Update your trip information and seat availability' 
+const pageSubtitle = computed(() =>
+  isEdit.value
+    ? 'Update your trip information and seat availability'
     : 'Fill in the details to offer a seat to fellow Eagles'
 );
 
-const buttonLabel = computed(() => 
+const buttonLabel = computed(() =>
   isEdit.value ? 'Edit Ride Offer' : 'Publish Ride Offer'
 );
 

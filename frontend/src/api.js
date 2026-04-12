@@ -1,47 +1,47 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  // 1. Corrected baseURL (removed /api if your routes are direct in Express)
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   }
 })
 
+// 2. INTERCEPTOR: Automatically attach the JWT token to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    // Standard format: "Bearer <token>"
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
 // --- API ROUTES DEFINITION ---
 
 export const userService = {
-  // Get all users (for testing)
-  getAll: () => api.get('/users'),
-  // Get one specific profile
-  getProfile: (id) => api.get(`/users/${id}`),
-  // Register a new user
-  register: (data) => api.post('/auth/register', data),
-  // Login
-  login: (credentials) => api.post('/auth/login', credentials)
-}
-
-export const rideService = {
-  // Fetch all available rides
-  getAll: (params) => api.get('/rides', { params }), // params can be { destination: 'Paris' }
-  // Create a new ride
-  create: (data) => api.post('/rides', data),
-  // Get reviews for a specific ride
+  getProfile: (id) => api.get(`/users/${id}`).then(res => res.data),
+  register: (data) => api.post('/auth/register', data).then(res => res.data),
+  login: (credentials) => api.post('/auth/login', credentials).then(res => res.data),
   getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`)
 }
 
+export const rideService = {
+  getAll: (params) => api.get('/rides', { params }),
+  create: (data) => api.post('/rides', data),
+}
+
 export const bookingService = {
-  // Book a seat
   book: (data) => api.post('/bookings', data),
-  // Get bookings for a specific user
   getUserBookings: (userId) => api.get(`/users/${userId}/bookings`),
-  // Update booking status (Confirm/Cancel)
   updateStatus: (id, status) => api.patch(`/bookings/${id}`, { status })
 }
 
 export const vehicleService = {
-  // Get vehicle by plate or user
-  getByUser: (userId) => api.get(`/users/${userId}/vehicles`),
-  // Add a new vehicle
+  getByUser: (userId) => api.get(`/users/${userId}/vehicle`).then(res => res.data),
   add: (data) => api.post('/vehicles', data)
 }
 
