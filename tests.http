@@ -102,7 +102,7 @@ POST {{baseUrl}}/bookings
 Content-Type: application/json
 
 {
-    "rideID": "RIDE-001",
+    "rideID": "RIDE-004",
     "goldCardNumber": 55501
 }
 

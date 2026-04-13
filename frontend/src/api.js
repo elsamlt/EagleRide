@@ -35,7 +35,7 @@ export const rideService = {
 }
 
 export const bookingService = {
-  book: (data) => api.post('/bookings', data),
+  book: (rideID, goldCardNumber) => api.post('/bookings', { rideID, goldCardNumber }).then(res => res.data),
   getUserBookings: (userId) => api.get(`/users/${userId}/bookings`),
   updateStatus: (id, status) => api.patch(`/bookings/${id}`, { status })
 }

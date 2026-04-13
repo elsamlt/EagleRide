@@ -435,12 +435,11 @@ app.post('/bookings', (req, res) => {
             console.error("Fetch Max Booking ID Error:", err);
             return res.status(500).json({ error: "Database error during ID generation" });
         }
-        let nextBookingId = "BOOK-001";
 
+        let nextBookingId = "BOOK-001";
         if (maxResult[0].lastId) {
             const lastIdString = maxResult[0].lastId; 
             const parts = lastIdString.split('-');
-            
             if (parts.length === 2) {
                 const numericPart = parseInt(parts[1]); 
                 const nextNumber = numericPart + 1;
@@ -455,10 +454,18 @@ app.post('/bookings', (req, res) => {
                 console.error("Insert Booking Error:", err);
                 return res.status(500).json({ error: "Failed to create booking" });
             }
+
+            const updateRideSql = "UPDATE Ride SET availableSeats = availableSeats - 1 WHERE rideID = ? AND availableSeats > 0";
             
-            res.status(201).json({ 
-                message: "Booking successful",
-                bookingID: nextBookingId 
+            db.query(updateRideSql, [rideID], (err, updateResult) => {
+                if (err) {
+                    console.error("Update Ride Seats Error:", err);
+                }
+
+                res.status(201).json({ 
+                    message: "Booking successful and seats updated",
+                    bookingID: nextBookingId 
+                });
             });
         });
     });
