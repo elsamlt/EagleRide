@@ -10,17 +10,20 @@
       <main class="info-column">
 
         <section class="card route-card">
-          <div class="route-visual">
+          <div class="route-container">
             <div class="stop">
-              <span class="time">{{ ride.departureTime }}</span>
               <span class="city">{{ ride.origin }}</span>
+              <span class="time">{{ ride.departureTime }}</span>
             </div>
-            <div class="duration-line">
-              <span class="duration-text">35 min</span>
+
+            <div class="visual-indicator">
+              <div class="line"></div>
+              <div class="duration-badge">35 min</div>
             </div>
+
             <div class="stop">
-              <span class="time">{{ ride.arrivalTime }}</span>
               <span class="city">{{ ride.destination }}</span>
+              <span class="time">{{ ride.arrivalTime }}</span>
             </div>
           </div>
         </section>
@@ -29,11 +32,7 @@
 
         <section class="card reviews-card">
           <h3 class="section-title">Passenger Reviews</h3>
-
-          <div v-if="reviews.length === 0" class="empty-msg">
-            No review for the moment
-          </div>
-
+          <div v-if="reviews.length === 0" class="empty-msg">No review for the moment</div>
           <div v-else class="reviews-list">
             <ReviewItem
               v-for="review in reviews"
@@ -48,7 +47,33 @@
         <div class="sticky-card">
           <div class="date-header">
             <h3>{{ formatDate(ride.date_) }}</h3>
-            <p>{{ ride.origin }} to {{ ride.destination }}</p>
+            <p class="route-summary">{{ ride.origin }}</p>
+            <div class="mini-visual">
+               <span>{{ ride.departureTime }}</span>
+               <div class="visual-indicator">
+                  <div class="line"></div>
+                  <div class="duration-badge">35 min</div>
+               </div>
+            </div>
+            <p class="route-summary">{{ ride.destination }}</p>
+            <div class="mini-visual">
+               <span>{{ ride.arrivalTime }}</span>
+            </div>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="card-header">
+            <div class="avatar-circle">
+              {{ driver.name.charAt(0) }}
+            </div>
+            <div class="driver-info">
+              <h3 class="driver-name">{{ driver.name }}</h3>
+              <div class="rating-row">
+                <span class="star">★</span>
+                <span class="rating-text">{{ driver.rating }} ({{ driver.reviews }} Reviews)</span>
+              </div>
+            </div>
           </div>
 
           <hr class="divider" />
@@ -58,7 +83,7 @@
             <div class="price">{{ ride.price }}$</div>
           </div>
 
-          <AppButton size="large" @click="handleBooking">
+          <AppButton size="full" @click="handleBooking" variant="primary">
             Book now
           </AppButton>
         </div>
@@ -110,45 +135,166 @@ const handleBooking = () => {
 </script>
 
 <style scoped>
-.ride-details-page { max-width: 1200px; margin: 0 auto; padding: 20px; }
-.page-title { color: var(--juniata-blue); margin: 20px 0; font-size: 32px; }
+.ride-details-page { max-width: 1200px; margin: 0 auto; padding: 20px 40px; }
+.page-title { color: var(--juniata-blue); margin: 20px 0 10px 0; font-size: 36px; font-weight: 800; }
 
 .details-grid {
   display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 30px;
+  grid-template-columns: 1fr 380px;
+  gap: 40px;
+}
+
+.empty-msg{
+  text-align: center;
+  color: var(--light-grey);
 }
 
 .card {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
+  background: var(--white);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 15px;
   border: 1px solid #eee;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.avatar-circle {
+  width: 48px;
+  height: 48px;
+  background-color: var(--juniata-blue);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.driver-name {
+  color: var(--juniata-blue);
+  margin: 0;
+  font-size: 18px;
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--juniata-gold);
+  font-size: 14px;
+}
+
+/* Route Visual Design */
+.route-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 20px;
+}
+
+.stop { display: flex; flex-direction: column; }
+.stop .city { font-weight: 700; font-size: 18px; color: var(--juniata-blue); }
+.stop .time { font-size: 14px; color: var(--text-dark); }
+
+.visual-indicator {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 5px 0;
+  height: 60px;
+}
+
+.line {
+  width: 2px;
+  height: 100%;
+  background: var(--light-gray);
+  margin-left: 10px;
+  position: relative;
+}
+
+.duration-badge {
+  font-size: 13px;
+  color: var(--text-dark);
+  background: var(--light-gray);
+  padding: 4px 12px;
+  border-radius: 20px;
 }
 
 /* Sidebar Styling */
 .sticky-card {
   position: sticky;
-  top: 100px;
-  background: white;
-  padding: 24px;
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  top: 40px;
+  background: var(--white);
+  padding: 30px;
+  border-radius: 24px;
   border: 1px solid #eee;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
+
+.date-header h3 { font-size: 28px; color: var(--juniata-blue); margin: 0px; }
+.route-summary { font-weight: 600; color: var(--text-dark); margin-bottom: 0px; }
+
+.mini-visual {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: var(--text-dark);
+  gap: 2px;
+}
+
+.mini-line { display: flex; align-items: center; gap: 10px; color: var(--light-grey); }
+.mini-duration { color: var(--light-grey); font-size: 12px; }
+
+.sidebar-driver {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.mini-avatar {
+  width: 45px;
+  height: 45px;
+  background: var(--juniata-blue);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.mini-driver-info { display: flex; flex-direction: column; }
+.mini-driver-info .name { font-weight: 700; color: var(--juniata-blue); }
+.mini-driver-info .rating { font-size: 13px; color: var(--text-dark); }
+
+.divider { border: 0; border-top: 1px solid var(--light-gray); margin: 20px 0; }
 
 .booking-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 20px 0;
-  font-weight: bold;
+  margin: 25px 0;
 }
 
-.price { color: var(--text-dark); font-size: 20px; }
+.seats-left { color: var(--light-grey); font-size: 16px; }
+.price { color: var(--light-grey); font-size: 16px; font-weight: 700;}
 
-.back-link { background: none; border: none; color: #9CA3AF; cursor: pointer; }
+.back-link {
+  background: none;
+  border: none;
+  color: var(--light-grey);
+  cursor: pointer;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
 
-.section-title { color: var(--juniata-blue); margin-bottom: 16px; font-size: 20px; }
+.section-title { color: var(--juniata-blue); margin-top:0; margin-bottom: 25px; font-size: 22px; font-weight: 700; }
+
 </style>

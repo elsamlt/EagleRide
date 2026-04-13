@@ -79,6 +79,7 @@ defineProps({
   border-radius: 16px;
   padding: 24px;
   border: 1px solid #eee;
+  margin-bottom: 15px;
 }
 
 .card-header {
