@@ -26,6 +26,7 @@ export const userService = {
   getProfile: (id) => api.get(`/users/${id}`).then(res => res.data),
   register: (data) => api.post('/auth/register', data).then(res => res.data),
   login: (credentials) => api.post('/auth/login', credentials).then(res => res.data),
+  dcnjdk: (payload) => api.patch('/users/profile', payload).then(res => res.data),
   getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`)
 }
 

@@ -1,4 +1,4 @@
-<template>
+x <template>
   <div class="user-form-container">
     <div class="form-header">
       <h1>{{ isEditMode ? 'Edit Your Account' : 'Create Your Account' }}</h1>
@@ -108,12 +108,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import AppButton from './AppButton.vue';
 
 const props = defineProps({
-  mode: { type: String, default: 'create' }
+  mode: { type: String, default: 'create' },
+  initialData: { type: Object, default: () => ({}) }
 });
+
+const emit = defineEmits(['save']);
 
 const isEditMode = computed(() => props.mode === 'edit');
 
@@ -137,6 +140,34 @@ const vehicle = ref({
   plateNumber: ''
 });
 
+watch(
+  () => props.initialData,
+  (data) => {
+    if (!data) return;
+
+    user.value = {
+      name: data.name || data.fullName || '',
+      email: data.email || '',
+      password: '',
+      goldCardNumber: data.goldCardNumber || '',
+      dateOfBirth: data.dateOfBirth || data.dob || '',
+      phoneNumber: data.phoneNumber || data.phone || '',
+      driverLicense: data.driverLicense || data.driverInfo?.license || '',
+      prefersMusic: data.prefersMusic || 'no',
+      prefersConversation: data.prefersConversation || 'no',
+      prefersSmoke: data.prefersSmoke || 'no',
+      prefersPets: data.prefersPets || 'no'
+    };
+
+    vehicle.value = {
+      model: data.vehicle?.model || data.driverInfo?.model || '',
+      color: data.vehicle?.color || data.driverInfo?.color || '',
+      plateNumber: data.vehicle?.plateNumber || data.driverInfo?.plate || ''
+    };
+  },
+  { immediate: true }
+);
+
 const availablePrefs = [
   { id: 'music', key: 'prefersMusic', label: 'Music', icon: 'music_note', sub: 'Okay during ride?' },
   { id: 'chat', key: 'prefersConversation', label: 'Conversation', icon: 'forum', sub: 'Like to chat?' },
@@ -150,7 +181,10 @@ const togglePref = (id) => {
 };
 
 const submitUser = () => {
-  console.log("Form Data:", { ...user.value, vehicle: vehicle.value });
+  emit('save', {
+    user: user.value,
+    vehicle: vehicle.value
+  });
 };
 </script>
 

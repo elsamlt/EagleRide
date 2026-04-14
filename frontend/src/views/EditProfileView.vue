@@ -11,8 +11,8 @@
       <div class="form-card">
         <UserForm
           mode="edit"
-          :initialData="userData"
-          @success="onUpdateSuccess"
+          :initialData="user"
+          @save="handleSave"
         />
       </div>
 
@@ -21,42 +21,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+import { userService } from '@/api';
 import UserForm from '@/components/UserForm.vue';
 
 const router = useRouter();
-const userData = ref(null);
+const authStore = useAuthStore();
+const user = computed(() => authStore.user);
 
-onMounted(async () => {
+const handleSave = async ({ user: updatedUser, vehicle }) => {
   try {
-    // Replace with your actual API call:
-    // const response = await axios.get('/api/user/profile');
-    // userData.value = response.data;
-
-    // Mock Data for UI Testing:
-    userData.value = {
-      fullName: 'Ben Harrison',
-      email: 'harrisb@juniata.edu',
-      dob: '2002-12-03',
-      phone: '814-555-0192',
-      prefs: { music: true, chat: true, smoking: false, pets: true },
-      driverInfo: {
-        license: 'PA-9928374',
-        model: 'Honda Civic',
-        color: 'Silver',
-        plate: 'ABC-1234'
-      }
-    };
+    const result = await userService.dcnjdk({ user: updatedUser, vehicle });
+    authStore.user = result;
+    localStorage.setItem('user', JSON.stringify(result));
+    console.log("Account updated successfully!");
+    router.push('/dashboard/profile');
   } catch (error) {
-    console.error("Error loading profile:", error);
+    console.error('Update failed', error);
   }
-});
-
-const onUpdateSuccess = () => {
-  // Trigger a success notification here if you have a snackbar/toast component
-  console.log("Account updated successfully!");
-  router.push('/dashboard/profile');
 };
 </script>
 
