@@ -207,6 +207,31 @@ app.get('/users/:id/vehicle', (req, res) => {
     });
 });
 
+// --- POST /vehicles ---
+// Description: Adds a new vehicle for a driver after account creation.
+app.post('/vehicles', (req, res) => {
+    const { goldCardNumber, model, color, plateNumber } = req.body;
+
+    if (!goldCardNumber || !model || !color || !plateNumber) {
+        return res.status(400).json({ error: "Missing required vehicle fields" });
+    }
+
+    const sql = `INSERT INTO Vehicle (goldCardNumber, model, color, plateNumber) VALUES (?, ?, ?, ?)`;
+    const values = [goldCardNumber, model, color, plateNumber];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("Add Vehicle SQL Error:", err);
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ error: "Vehicle already exists for this driver" });
+            }
+            return res.status(500).json({ error: "Failed to add vehicle" });
+        }
+
+        res.status(201).json({ message: "Vehicle added successfully", vehicleId: result.insertId });
+    });
+});
+
 // --- GET /rides ---
 // Description: Returns a list of all available rides
 app.get('/rides', (req, res) => {

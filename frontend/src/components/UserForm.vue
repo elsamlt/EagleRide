@@ -99,6 +99,7 @@
         <AppButton size="full" type="submit">
           {{ isEditMode ? 'Save Changes' : 'Create Account' }}
         </AppButton>
+        <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
         <p v-if="!isEditMode" class="login-prompt">
           Already have an account? <router-link to="/auth/login">Login here</router-link>
         </p>
@@ -109,7 +110,9 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import AppButton from './AppButton.vue';
+import { userService, vehicleService } from '@/api';
 
 const props = defineProps({
   mode: { type: String, default: 'create' }
@@ -137,6 +140,11 @@ const vehicle = ref({
   plateNumber: ''
 });
 
+const emit = defineEmits(['success']);
+const router = useRouter();
+const errorMessage = ref('');
+const loading = ref(false);
+
 const availablePrefs = [
   { id: 'music', key: 'prefersMusic', label: 'Music', icon: 'music_note', sub: 'Okay during ride?' },
   { id: 'chat', key: 'prefersConversation', label: 'Conversation', icon: 'forum', sub: 'Like to chat?' },
@@ -149,8 +157,42 @@ const togglePref = (id) => {
   user.value[pref.key] = user.value[pref.key] === 'yes' ? 'no' : 'yes';
 };
 
-const submitUser = () => {
-  console.log("Form Data:", { ...user.value, vehicle: vehicle.value });
+const submitUser = async () => {
+  if (isEditMode.value) {
+    // Edit mode is not wired to a backend update yet.
+    emit('success');
+    return;
+  }
+
+  loading.value = true;
+  errorMessage.value = '';
+
+  try {
+    const userPayload = {
+      ...user.value
+    };
+
+    const registeredUser = await userService.register(userPayload);
+
+    const hasVehicleData = [vehicle.value.model, vehicle.value.color, vehicle.value.plateNumber]
+      .some(value => value && value.toString().trim().length > 0);
+
+    if (hasVehicleData) {
+      const vehiclePayload = {
+        ...vehicle.value,
+        goldCardNumber: user.value.goldCardNumber
+      };
+      await vehicleService.add(vehiclePayload);
+    }
+
+    emit('success', registeredUser);
+    router.push('/auth/login');
+  } catch (error) {
+    console.error('Registration failed:', error);
+    errorMessage.value = error?.response?.data?.error || error.message || 'Registration failed. Please try again.';
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
@@ -310,6 +352,12 @@ input:focus {
 .submit-area {
   grid-column: span 2;
   text-align: center;
+}
+
+.form-error {
+  margin-top: 1rem;
+  color: var(--danger, #dc2626);
+  font-weight: 500;
 }
 
 .login-prompt {
