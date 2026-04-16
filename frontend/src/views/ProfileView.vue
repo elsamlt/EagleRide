@@ -26,7 +26,10 @@
       </button>
     </div>
 
-    <div class="tab-content">
+    <div :class="[
+      { 'tab-content': (activeTab === 'joined' && joinedRides.length === 0) ||
+                    (activeTab === 'offers' && myOffers.length === 0) }
+    ]">
       <div v-if="activeTab === 'joined'">
         <div v-if="joinedRides.length === 0" class="empty-state">
           <p>You have no upcoming rides as a passenger.</p>
@@ -35,7 +38,8 @@
 
         <div v-else class="rides-list">
           <div v-for="ride in joinedRides" :key="ride.id" class="ride-wrapper">
-             </div>
+            <RideCard :ride="ride" />
+          </div>
         </div>
       </div>
 
@@ -65,15 +69,32 @@
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import OfferCard from '@/components/OfferCard.vue';
+import RideCard from '@/components/RideCard.vue';
 
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 
 const activeTab = ref('joined');
 
-// Données fictives pour correspondre à ta maquette "My Offers"
-const joinedRides = ref([]);
 const myOffers = ref([
+  {
+    id: 1,
+    origin: 'Huntingdon',
+    destination: 'State College',
+    date: '03/18',
+    time: '6:00 PM',
+    availableSeats: 2,
+    pendingRequests: [
+      { id: 10, name: 'Luna Morales', rating: 4.8, reviews: 42 },
+      { id: 11, name: 'Emily Parker', rating: 5.0, reviews: 3 }
+    ],
+    confirmedPassengers: [
+      { id: 20, name: 'Alice' }
+    ]
+  }
+]);
+
+const joinedRides = ref([
   {
     id: 1,
     origin: 'Huntingdon',
@@ -121,5 +142,16 @@ const decline = (id) => console.log("Declined", id);
 
 .accent-link {
   color: var(--juniata-gold);
+}
+
+.tab-content {
+  background-color: var(--white);
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+}
+
+.tab-content p {
+  margin-top: 0;
 }
 </style>

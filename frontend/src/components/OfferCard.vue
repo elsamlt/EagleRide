@@ -20,24 +20,31 @@
 
     <hr class="section-divider" />
 
-    <div class="section-container white-bg" v-if="offer.pendingRequests?.length > 0">
+    <div class="section-container white-bg">
       <p class="section-label">PENDING REQUESTS</p>
-      <div v-for="req in offer.pendingRequests" :key="req.id" class="passenger-card">
-        <div class="user-profile">
-          <div class="avatar">{{ req.name.charAt(0) }}</div>
-          <div class="user-details">
-            <span class="user-name">{{ req.name }}</span>
-            <span class="user-stats">★ {{ req.rating }} ({{ req.reviews }} Reviews)</span>
+
+      <template v-if="offer.pendingRequests && offer.pendingRequests.length > 0">
+        <div v-for="req in offer.pendingRequests" :key="req.id" class="passenger-card">
+          <div class="user-profile">
+            <div class="avatar">{{ req.name.charAt(0) }}</div>
+            <div class="user-details">
+              <span class="user-name">{{ req.name }}</span>
+              <span class="user-stats">★ {{ req.rating }} ({{ req.reviews }} Reviews)</span>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <AppButton size="standard" variant="primary" @click="$emit('approve', {offerId: offer.id, reqId: req.id})">
+              Accept
+            </AppButton>
+            <AppButton size="standard" variant="grey" @click="$emit('decline', {offerId: offer.id, reqId: req.id})">
+              Decline
+            </AppButton>
           </div>
         </div>
-        <div class="action-buttons">
-          <AppButton size="standard" variant="primary" @click="$emit('approve', {offerId: offer.id, reqId: req.id})">
-            Accept
-          </AppButton>
-          <AppButton size="standard" variant="grey" @click="$emit('decline', {offerId: offer.id, reqId: req.id})">
-            Decline
-          </AppButton>
-        </div>
+      </template>
+
+      <div v-else class="no-requests">
+        <p class="no-passengers">No pending requests at the moment.</p>
       </div>
     </div>
 
@@ -187,5 +194,5 @@ defineEmits(['edit', 'cancel', 'approve', 'decline']);
 /* Confirmed Passengers avatars */
 .confirmed-avatars { display: flex; gap: 8px; justify-content: flex-start; padding-bottom: 15px ; }
 .avatar.mini { width: 34px; height: 34px; font-size: 14px; }
-.no-passengers { font-size: 13px; color: var(--light-grey); }
+.no-passengers { font-size: 13px; color: var(--light-grey); text-align: center;}
 </style>
