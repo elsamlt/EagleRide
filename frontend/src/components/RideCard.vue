@@ -9,7 +9,16 @@
 </template>
 
 <script setup>
-// English: Props will be added here later to receive ride data
+//one ride prop from parent
+const props = defineProps({
+  ride: Object
+})
+
+const router = useRouter()
+//button details
+const goToDetails = () => {
+  router.push(`/rides-details/${props.ride.rideID}`)
+}
 </script>
 
 <style scoped>

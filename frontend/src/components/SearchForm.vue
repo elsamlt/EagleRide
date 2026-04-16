@@ -4,28 +4,33 @@
     <form @submit.prevent="onSearch">
       <div class="input-group">
         <label>To where?</label>
-        <input type="text" v-model="destination" placeholder="Enter destination">
+        <input type="text" v-model="searchQuery.destination" placeholder="Enter destination">
       </div>
 
       <div class="input-group">
         <label>When?</label>
-        <input type="date" v-model="date">
+        <input type="date" v-model="searchQuery.travelDate">
       </div>
 
-      <button type="submit" class="btn-search">Search</button>
+      <button type="submit" class="btn-search">Search now</button>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { reactive} from 'vue'
+//defining emits
+const emit = defineEmits(['search-submitted'])
 
-// English: Reactive variables for the search criteria
-const destination = ref('')
-const date = ref('')
+
+// Reactive variables for the search criteria
+const searchQuery = reactive({
+  destination: '',
+  travelDate: ''
+})
 
 const onSearch = () => {
-  console.log('Searching for:', destination.value, 'on', date.value)
+  emit('search-submitted', { ...searchQuery })
   // Team will link this to rideService.getAll() later
 }
 </script>

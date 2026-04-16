@@ -7,17 +7,24 @@ import { rideService } from '@/api'
 const rides = ref([]) // Team will populate this with API data
 //fill rides using rideService.getAll()
 onMounted(async () => {
-  rides.value = await rideService.getAll()
+  const today = new Date().toISOString().split('T')[0]
+  rides.value = await rideService.getAll({ date_: today})
 })
 //sort rides by date
-const searchRides = computed(() => {
+const searchCriteria = ref({ destination: '', travelDate: ''})
+const groupedRides = computed(() => {
   return [...rides.value].sort((a, b) => new Date(a.date_)
-  - new Date(b.date_))
+  - new Date(b.date_)).filter(ride => {
+    const matchDest = !searchCriteria.value.destination ||
+    ride.destination.toLowerCase().includes(searchCriteria.value.destination.toLowerCase())
+    const matchDate = !searchCriteria.value.travelDate ||
+    ride.date_ === searchCriteria.value.travelDate
+    return matchDest && matchDate
+  })
 })
 //filtering logic (triggering get request with destination + date)
-const handleSearch = async ({ destination, date_}) => {
-  rides.value = await rideService.getFiltered(destination, date_)
-
+const handleSearch = async (criteria) => {
+  searchCriteria.value = criteria
 }
 </script>
 
