@@ -143,6 +143,63 @@ app.post('/auth/login', (req, res) => {
     });
 });
 
+// --- PUT /users/:id ---
+// Updates user profile information and preferences
+app.put('/users/:id', (req, res) => {
+    const goldCardNumber = req.params.id;
+    const { 
+        name, 
+        dateOfBirth, 
+        phoneNumber,
+        prefersMusic,
+        prefersConversation,
+        prefersPets,
+        prefersSmoke,
+        driverLicense
+    } = req.body;
+
+    if (!name || !dateOfBirth || !phoneNumber) {
+        return res.status(400).json({ error: "Name, Date of Birth, and Phone Number are required" });
+    }
+
+    const sql = `
+        UPDATE User SET 
+            name = ?, 
+            dateOfBirth = ?, 
+            phoneNumber = ?, 
+            prefersMusic = ?, 
+            prefersConversation = ?, 
+            prefersPets = ?, 
+            prefersSmoke = ?, 
+            driverLicense = ?
+        WHERE goldCardNumber = ?`;
+
+    const values = [
+        name, 
+        dateOfBirth, 
+        phoneNumber, 
+        prefersMusic, 
+        prefersConversation, 
+        prefersPets, 
+        prefersSmoke, 
+        driverLicense, 
+        goldCardNumber
+    ];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("Update SQL Error:", err);
+            return res.status(500).json({ error: "Failed to update profile" });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json({ message: "Profile updated successfully" });
+    });
+});
+
 // --- GET /users/:id ---
 // Description: Returns profile details for a specific user using goldCardNumber.
 app.get('/users/:id', (req, res) => {
@@ -204,6 +261,52 @@ app.get('/users/:id/vehicle', (req, res) => {
             return res.status(404).json({ error: "Vehicle not found" });
         }
         res.json(result[0]); // Assuming one vehicle per driver
+    });
+});
+
+/**
+ * POST /vehicles
+ * Registers a new vehicle for a user.
+ */
+app.post('/vehicles', (req, res) => {
+    const { plateNumber, model, color, goldCardNumber } = req.body;
+
+    if (!plateNumber || !model || !color || !goldCardNumber) {
+        return res.status(400).json({ error: "All vehicle fields are required" });
+    }
+
+    const sql = "INSERT INTO Vehicle (plateNumber, model, color, goldCardNumber) VALUES (?, ?, ?, ?)";
+    
+    db.query(sql, [plateNumber, model, color, goldCardNumber], (err, result) => {
+        if (err) {
+            console.error("SQL Error (Insert Vehicle):", err);
+            return res.status(500).json({ error: "Internal server error while adding vehicle" });
+        }
+        res.status(201).json({ message: "Vehicle successfully registered" });
+    });
+});
+
+/**
+ * PUT /vehicles/:id
+ * Updates vehicle details based on the owner's Gold Card Number.
+ */
+app.put('/vehicles/:id', (req, res) => {
+    const goldCardNumber = req.params.id;
+    const { plateNumber, model, color } = req.body;
+
+    const sql = "UPDATE Vehicle SET plateNumber = ?, model = ?, color = ? WHERE goldCardNumber = ?";
+    
+    db.query(sql, [plateNumber, model, color, goldCardNumber], (err, result) => {
+        if (err) {
+            console.error("SQL Error (Update Vehicle):", err);
+            return res.status(500).json({ error: "Internal server error while updating vehicle" });
+        }
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "No vehicle found for this user" });
+        }
+        
+        res.status(200).json({ message: "Vehicle information updated successfully" });
     });
 });
 
@@ -435,12 +538,11 @@ app.post('/bookings', (req, res) => {
             console.error("Fetch Max Booking ID Error:", err);
             return res.status(500).json({ error: "Database error during ID generation" });
         }
-        let nextBookingId = "BOOK-001";
 
+        let nextBookingId = "BOOK-001";
         if (maxResult[0].lastId) {
             const lastIdString = maxResult[0].lastId; 
             const parts = lastIdString.split('-');
-            
             if (parts.length === 2) {
                 const numericPart = parseInt(parts[1]); 
                 const nextNumber = numericPart + 1;
@@ -455,10 +557,18 @@ app.post('/bookings', (req, res) => {
                 console.error("Insert Booking Error:", err);
                 return res.status(500).json({ error: "Failed to create booking" });
             }
+
+            const updateRideSql = "UPDATE Ride SET availableSeats = availableSeats - 1 WHERE rideID = ? AND availableSeats > 0";
             
-            res.status(201).json({ 
-                message: "Booking successful",
-                bookingID: nextBookingId 
+            db.query(updateRideSql, [rideID], (err, updateResult) => {
+                if (err) {
+                    console.error("Update Ride Seats Error:", err);
+                }
+
+                res.status(201).json({ 
+                    message: "Booking successful and seats updated",
+                    bookingID: nextBookingId 
+                });
             });
         });
     });

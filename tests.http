@@ -102,7 +102,7 @@ POST {{baseUrl}}/bookings
 Content-Type: application/json
 
 {
-    "rideID": "RIDE-001",
+    "rideID": "RIDE-004",
     "goldCardNumber": 55501
 }
 
@@ -120,3 +120,39 @@ GET {{baseUrl}}/users/55501/bookings?status=Pending
 
 ### 21. Delete a specific booking
 DELETE {{baseUrl}}/bookings/BOOK-505
+
+### 22. Update User Profile 
+PUT {{baseUrl}}/users/102
+Content-Type: application/json
+
+{
+    "name": "Kai Sterling Updated",
+    "dateOfBirth": "2002-03-18",
+    "phoneNumber": "814-555-0000",
+    "prefersMusic": "yes",
+    "prefersConversation": "yes",
+    "prefersPets": "no",
+    "prefersSmoke": "no",
+    "driverLicense": "PA-88888888"
+}
+
+### 23. Add a new vehicle to a specific user
+POST {{baseUrl}}/vehicles
+Content-Type: application/json
+
+{
+    "plateNumber": "EAGLE-26",
+    "model": "Ford Mustang",
+    "color": "Blue",
+    "goldCardNumber": 55502
+}
+
+### 24. Update existing vehicle details
+PUT {{baseUrl}}/vehicles/55501
+Content-Type: application/json
+
+{
+    "plateNumber": "EAGLE-2026",
+    "model": "Tesla Model 3",
+    "color": "Midnight Silver"
+}

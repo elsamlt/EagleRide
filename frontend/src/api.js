@@ -26,23 +26,27 @@ export const userService = {
   getProfile: (id) => api.get(`/users/${id}`).then(res => res.data),
   register: (data) => api.post('/auth/register', data).then(res => res.data),
   login: (credentials) => api.post('/auth/login', credentials).then(res => res.data),
+  updateProfile: (id, data) => api.put(`/users/${id}`, data).then(res => res.data),
   getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`)
 }
 
 export const rideService = {
   getAll: (params) => api.get('/rides', { params }),
   create: (data) => api.post('/rides', data),
+  getDetails: (rideId) => api.get(`/rides/${rideId}`),
+  edit: (data) => api.put(`/rides/${data.id}`, data),
 }
 
 export const bookingService = {
-  book: (data) => api.post('/bookings', data),
+  book: (rideID, goldCardNumber) => api.post('/bookings', { rideID, goldCardNumber }).then(res => res.data),
   getUserBookings: (userId) => api.get(`/users/${userId}/bookings`),
   updateStatus: (id, status) => api.patch(`/bookings/${id}`, { status })
 }
 
 export const vehicleService = {
   getByUser: (userId) => api.get(`/users/${userId}/vehicle`).then(res => res.data),
-  add: (data) => api.post('/vehicles', data)
+  add: (data) => api.post('/vehicles', data),
+  update: (idUser, data) => api.put(`/vehicles/${idUser}`, data)
 }
 
 export default api
