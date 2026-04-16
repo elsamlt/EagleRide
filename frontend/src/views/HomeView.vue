@@ -1,22 +1,36 @@
 <script setup>
 import SearchForm from '@/components/SearchForm.vue'
 import RideCard from '@/components/RideCard.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { rideService } from '@/api'
 
 const rides = ref([]) // Team will populate this with API data
+//fill rides using rideService.getAll()
+onMounted(async () => {
+  rides.value = await rideService.getAll()
+})
+//sort rides by date
+const searchRides = computed(() => {
+  return [...rides.value].sort((a, b) => new Date(a.date_)
+  - new Date(b.date_))
+})
+//filtering logic (triggering get request with destination + date)
+const handleSearch = async ({ destination, date_}) => {
+  rides.value = await rideService.getFiltered(destination, date_)
+
+}
 </script>
 
 <template>
   <div class="home-container">
     <section class="search-section">
-      <SearchForm />
+      <SearchForm @search="handleSearch" />
     </section>
 
     <section class="results-section">
       <h2>Available Rides</h2>
       <div class="rides-list">
-        <RideCard v-for="ride in rides" :key="ride.rideID" :ride="ride" />
+        <RideCard v-for="ride in searchRides" :key="ride.rideID" :ride="ride" />
         <p v-if="rides.length === 0">No rides available yet.</p>
       </div>
     </section>
