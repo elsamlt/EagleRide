@@ -26,11 +26,13 @@ export const userService = {
   getProfile: (id) => api.get(`/users/${id}`).then(res => res.data),
   register: (data) => api.post('/auth/register', data).then(res => res.data),
   login: (credentials) => api.post('/auth/login', credentials).then(res => res.data),
-  getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`)
+  getReviews: (userId) => api.get(`/users/${userId}/reviews`).then(res => res.data)
 }
 
 export const rideService = {
   getAll: (params) => api.get('/rides', { params }),
+  getDetails: (rideId) => api.get(`/rides/${rideId}`).then(res => res.data),
+  getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`).then(res => res.data),
   create: (data) => api.post('/rides', data),
 }
 
