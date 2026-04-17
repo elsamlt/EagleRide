@@ -37,7 +37,7 @@
         </div>
 
         <div v-else class="rides-list">
-          <div v-for="ride in joinedRides" :key="ride.id" class="ride-wrapper">
+          <div v-for="ride in joinedRides" :key="ride.bookingID" class="ride-wrapper">
             <RideCard :ride="ride" />
           </div>
         </div>
@@ -66,13 +66,21 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { bookingService } from '@/api';
 import { useAuthStore } from '@/stores/auth';
 import OfferCard from '@/components/OfferCard.vue';
 import RideCard from '@/components/RideCard.vue';
 
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
+const joinedRides = ref([]);
+const isLoading = ref(true);
+
+const editOffer = (id) => console.log("Edit", id);
+const cancelOffer = (id) => console.log("Cancel", id);
+const approve = (id) => console.log("Approved", id);
+const decline = (id) => console.log("Declined", id);
 
 const activeTab = ref('joined');
 
@@ -94,28 +102,63 @@ const myOffers = ref([
   }
 ]);
 
-const joinedRides = ref([
-  {
-    id: 1,
-    origin: 'Huntingdon',
-    destination: 'State College',
-    date: '03/18',
-    time: '6:00 PM',
-    availableSeats: 2,
-    pendingRequests: [
-      { id: 10, name: 'Luna Morales', rating: 4.8, reviews: 42 },
-      { id: 11, name: 'Emily Parker', rating: 5.0, reviews: 3 }
-    ],
-    confirmedPassengers: [
-      { id: 20, name: 'Alice' }
-    ]
-  }
-]);
+// const joinedRides = ref([
+//   {
+//     id: 1,
+//     origin: 'Huntingdon',
+//     destination: 'State College',
+//     date: '03/18',
+//     time: '6:00 PM',
+//     availableSeats: 2,
+//     pendingRequests: [
+//       { id: 10, name: 'Luna Morales', rating: 4.8, reviews: 42 },
+//       { id: 11, name: 'Emily Parker', rating: 5.0, reviews: 3 }
+//     ],
+//     confirmedPassengers: [
+//       { id: 20, name: 'Alice' }
+//     ]
+//   }
+// ]);
 
-const editOffer = (id) => console.log("Edit", id);
-const cancelOffer = (id) => console.log("Cancel", id);
-const approve = (id) => console.log("Approved", id);
-const decline = (id) => console.log("Declined", id);
+// // Fonction pour charger les données
+// const fetchDashboardData = async () => {
+//   if (!user.value?.goldCardNumber) return;
+
+//   try {
+//     const userId = user.value.goldCardNumber;
+
+//     // Récupère les données du backend
+//     const data = await bookingService.getUserBookings(userId);
+
+//     myOffers.value = data;
+
+//   } catch (error) {
+//     console.error("Error fetching dashboard data:", error);
+//   }
+// };
+
+const fetchDashboardData = async () => {
+  if (!user.value?.goldCardNumber) return;
+
+  isLoading.value = true;
+
+  try {
+    const userId = user.value.goldCardNumber;
+    const data = await bookingService.getUserBookings(userId);
+
+    joinedRides.value = data.data
+
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchDashboardData();
+});
+
 </script>
 
 <style scoped>

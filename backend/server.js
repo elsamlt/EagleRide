@@ -587,10 +587,14 @@ app.get('/users/:id/bookings', (req, res) => {
             r.rideID, 
             r.destination, 
             r.departureTime, 
-            r.availableSeats 
+            r.availableSeats,
+            r.origin, 
+            DATE_FORMAT(r.date_, '%m/%d') AS date,
+            u.name AS driverName
         FROM Booking b
         JOIN Ride r ON b.rideID = r.rideID
-        WHERE b.goldCardNumber = ?
+        JOIN User u ON r.goldCardNumber = u.goldCardNumber 
+        WHERE b.goldCardNumber = ? 
     `;
 
     const params = [goldCardNumber];

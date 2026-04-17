@@ -39,10 +39,10 @@ Content-Type: application/json
 {
     "departureTime": "2:00:00",
     "date_": "2026-06-15",
-    "destination": "Test",
+    "destination": "Walamart",
     "availableSeats": 4,
     "price": 30,
-    "goldCardNumber": 102
+    "goldCardNumber": 55501
 }
 
 ### 5. Get All Available Rides (Ta route actuelle)
@@ -102,7 +102,7 @@ POST {{baseUrl}}/bookings
 Content-Type: application/json
 
 {
-    "rideID": "RIDE-004",
+    "rideID": "RIDE-002",
     "goldCardNumber": 55501
 }
 
