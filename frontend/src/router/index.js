@@ -7,7 +7,9 @@ const routes = [
     children: [
       { path: '', name: 'Home', component: () => import('@/views/HomeView.vue') },
       { path: 'profile', name: 'Profile', component: () => import('@/views/ProfileView.vue') },
-      { path: 'my-drives', name: 'MyDrives', component: () => import('@/views/MyDrives.vue') }
+      { path: 'my-drives', name: 'MyDrives', component: () => import('@/views/MyDrives.vue') },
+      { path: 'edit-ride/:id', name: 'EditRide', component: () => import('@/views/EditRideView.vue') },
+      { path: 'post-ride', name: 'PostRide', component: () => import('@/views/PostRideView.vue') }
     ]
   },
   {
