@@ -229,15 +229,16 @@ app.get('/users/:id/reviews', (req, res) => {
     const { id } = req.params;
 
     const sql = `
-        SELECT 
-            r.comment, 
-            r.stars, 
-            u.name AS reviewer_name
+        SELECT
+            r.reviewID,
+            r.comment,
+            r.stars,
+            u.name AS passengerName
         FROM Review r
         JOIN Booking b ON r.bookingID = b.bookingID
-        JOIN Books bk  ON b.bookingID = bk.bookingID
-        JOIN User u    ON bk.goldCardNumber = u.goldCardNumber
-        WHERE bk.goldCardNumber = ?
+        JOIN Ride ri ON b.rideID = ri.rideID
+        JOIN User u ON b.goldCardNumber = u.goldCardNumber
+        WHERE ri.goldCardNumber = ?
     `;
 
     db.query(sql, [id], (err, result) => {
@@ -396,11 +397,22 @@ app.post('/rides', (req, res) => {
 app.get('/rides/:id', (req, res) => {
     const rideId = req.params.id;
     
-    // Returns full ride object including the fields specified
     const sql = `
-        SELECT destination, date_ AS date_, departureTime, price, availableSeats, goldCardNumber AS goldCardNumber 
-        FROM Ride 
-        WHERE rideID = ?`;
+        SELECT 
+            r.rideID, 
+            r.destination, 
+            r.origin, 
+            r.date_ AS date, 
+            r.departureTime, 
+            r.price, 
+            r.availableSeats, 
+            r.goldCardNumber AS driverID,
+            u.name AS driverName,
+            u.phoneNumber AS driverPhone,
+            u.email AS driverEmail
+        FROM Ride r
+        JOIN User u ON r.goldCardNumber = u.goldCardNumber
+        WHERE r.rideID = ?`;
 
     db.query(sql, [rideId], (err, result) => {
         if (err) {
@@ -412,10 +424,34 @@ app.get('/rides/:id', (req, res) => {
             return res.status(404).json({ error: "Ride not found" });
         }
         
-        // Returns the single ride object
+        // Renvoie l'objet complet avec les infos du trajet + du conducteur
         res.status(200).json(result[0]);
     });
+});
 
+// --- GET /rides/:id/reviews ---
+// Description: Returns passenger reviews for a specific ride
+app.get('/rides/:id/reviews', (req, res) => {
+    const rideId = req.params.id;
+
+    const sql = `
+        SELECT 
+            r.reviewID,
+            r.comment,
+            r.stars,
+            u.name AS passengerName
+        FROM Review r
+        JOIN Booking b ON r.bookingID = b.bookingID
+        JOIN User u ON b.goldCardNumber = u.goldCardNumber
+        WHERE b.rideID = ?`;
+
+    db.query(sql, [rideId], (err, result) => {
+        if (err) {
+            console.error("Fetch Ride Reviews Error:", err);
+            return res.status(500).json({ error: "Internal server error" });
+        }
+        res.status(200).json(result);
+    });
 });
 
 //DELETE ride by ID

@@ -33,6 +33,8 @@ export const userService = {
 
 export const rideService = {
   getAll: (params) => api.get('/rides', { params }),
+  getDetails: (rideId) => api.get(`/rides/${rideId}`).then(res => res.data),
+  getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`).then(res => res.data),
   create: (data) => api.post('/rides', data),
   getDetails: (rideId) => api.get(`/rides/${rideId}`),
   edit: (data) => api.put(`/rides/${data.id}`, data),

@@ -16,9 +16,13 @@
     <hr class="divider" />
 
     <div class="preferences">
-      <div class="pref-item" v-if="driver.vehicle">
+      <div class="pref-item" v-if="vehicle.model || vehicle.color">
         <i class="material-icons">directions_car</i>
-        <p>Drive a {{ driver.vehicle.model }} ({{ driver.vehicle.color }})</p>
+        <p>Drive a {{ vehicle.model || 'vehicle' }} ({{ vehicle.color || 'unknown color' }})</p>
+      </div>
+      <div class="pref-item" v-else>
+        <i class="material-icons">directions_car</i>
+        <p>Vehicle details unavailable</p>
       </div>
 
       <div class="pref-item">
@@ -32,7 +36,7 @@
         <i v-if="driver.prefs.allowMusic" class="material-icons">music_note</i>
         <i v-else class="material-icons">music_off</i>
         <p>
-          {{ driver.prefs.allowMusic ? `Music: ${driver.prefs.musicGenre} preferred` : "No music during the drive" }}
+          {{ driver.prefs.allowMusic ? "We can put on a good playlist" : "No music during the drive" }}
         </p>
       </div>
 
@@ -56,21 +60,19 @@
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   driver: {
     type: Object,
     required: true
-    /* Example Object Structure:
-       {
-         name: 'Kai Sterling',
-         rating: 4.8,
-         reviews: 42,
-         vehicle: { model: 'Toyota Camry', color: 'White' },
-         prefs: { allowPets: false, allowMusic: true, musicGenre: '80s Rock', allowChat: true, allowSmoking: false }
-       }
-    */
+  },
+  car: {
+    type: Object,
+    required: false,
+    default: () => ({})
   }
 });
+
+const vehicle = props.car || props.driver.vehicle || {};
 </script>
 
 <style scoped>
