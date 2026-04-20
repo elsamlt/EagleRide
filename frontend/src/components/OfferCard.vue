@@ -112,7 +112,7 @@ defineEmits(['edit', 'cancel', 'approve', 'decline']);
 
 .offer-meta {
   margin: 4px 0 0;
-  color: var(--light-grey);
+  color: var(--text-dark);
   font-size: 14px;
   text-align: left;
 }
@@ -151,7 +151,7 @@ defineEmits(['edit', 'cancel', 'approve', 'decline']);
 .section-label {
   font-size: 12px;
   font-weight: 700;
-  color: var(--light-grey);
+  color: var(--text-dark);
   margin-bottom: 16px;
   text-align: left;
   letter-spacing: 0.5px;
@@ -194,5 +194,5 @@ defineEmits(['edit', 'cancel', 'approve', 'decline']);
 /* Confirmed Passengers avatars */
 .confirmed-avatars { display: flex; gap: 8px; justify-content: flex-start; padding-bottom: 15px ; }
 .avatar.mini { width: 34px; height: 34px; font-size: 14px; }
-.no-passengers { font-size: 13px; color: var(--light-grey); text-align: center;}
+.no-passengers { font-size: 13px; color: var(--light-grey);}
 </style>

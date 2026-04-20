@@ -102,8 +102,8 @@ POST {{baseUrl}}/bookings
 Content-Type: application/json
 
 {
-    "rideID": "RIDE-002",
-    "goldCardNumber": 55501
+    "rideID": "RIDE-005",
+    "goldCardNumber": 55502
 }
 
 ### 17. Get ALL bookings for a user
@@ -156,3 +156,6 @@ Content-Type: application/json
     "model": "Tesla Model 3",
     "color": "Midnight Silver"
 }
+
+### 25. Get all rides offered by a specific driver
+GET {{baseUrl}}/users/55501/offers

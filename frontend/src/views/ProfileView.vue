@@ -67,7 +67,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { bookingService } from '@/api';
+import { bookingService, userService } from '@/api';
 import { useAuthStore } from '@/stores/auth';
 import OfferCard from '@/components/OfferCard.vue';
 import RideCard from '@/components/RideCard.vue';
@@ -75,6 +75,7 @@ import RideCard from '@/components/RideCard.vue';
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 const joinedRides = ref([]);
+const myOffers = ref([]);
 const isLoading = ref(true);
 
 const editOffer = (id) => console.log("Edit", id);
@@ -84,25 +85,7 @@ const decline = (id) => console.log("Declined", id);
 
 const activeTab = ref('joined');
 
-const myOffers = ref([
-  {
-    id: 1,
-    origin: 'Huntingdon',
-    destination: 'State College',
-    date: '03/18',
-    time: '6:00 PM',
-    availableSeats: 2,
-    pendingRequests: [
-      { id: 10, name: 'Luna Morales', rating: 4.8, reviews: 42 },
-      { id: 11, name: 'Emily Parker', rating: 5.0, reviews: 3 }
-    ],
-    confirmedPassengers: [
-      { id: 20, name: 'Alice' }
-    ]
-  }
-]);
-
-// const joinedRides = ref([
+// const myOffers = ref([
 //   {
 //     id: 1,
 //     origin: 'Huntingdon',
@@ -120,23 +103,6 @@ const myOffers = ref([
 //   }
 // ]);
 
-// // Fonction pour charger les données
-// const fetchDashboardData = async () => {
-//   if (!user.value?.goldCardNumber) return;
-
-//   try {
-//     const userId = user.value.goldCardNumber;
-
-//     // Récupère les données du backend
-//     const data = await bookingService.getUserBookings(userId);
-
-//     myOffers.value = data;
-
-//   } catch (error) {
-//     console.error("Error fetching dashboard data:", error);
-//   }
-// };
-
 const fetchDashboardData = async () => {
   if (!user.value?.goldCardNumber) return;
 
@@ -144,9 +110,17 @@ const fetchDashboardData = async () => {
 
   try {
     const userId = user.value.goldCardNumber;
-    const data = await bookingService.getUserBookings(userId);
+    const dataJoined = await bookingService.getUserBookings(userId);
+    const dataOffers = await userService.getOffers(userId);
 
-    joinedRides.value = data.data
+    joinedRides.value = dataJoined.data;
+    // myOffers.value = dataOffers;
+
+    myOffers.value = dataOffers.map(offer => ({
+      ...offer,
+      // On s'assure que le formatage du temps est propre pour l'affichage
+      time: offer.departureTime
+    }));
 
   } catch (error) {
     console.error("Error fetching dashboard data:", error);

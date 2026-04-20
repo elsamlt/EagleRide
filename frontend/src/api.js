@@ -27,7 +27,9 @@ export const userService = {
   register: (data) => api.post('/auth/register', data).then(res => res.data),
   login: (credentials) => api.post('/auth/login', credentials).then(res => res.data),
   updateProfile: (id, data) => api.put(`/users/${id}`, data).then(res => res.data),
-  getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`)
+  getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`),
+  submitReview: (rideId, data) => api.post(`/rides/${rideId}/reviews`, data),
+  getOffers: (userId) => api.get(`/users/${userId}/offers`).then(res => res.data)
 }
 
 export const rideService = {

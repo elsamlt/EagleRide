@@ -342,6 +342,75 @@ app.get('/rides', (req, res) => {
     });
 });
 
+/**
+ * GET /users/:id/offers
+ * Description: Returns rides created by the user with their associated bookings.
+ */
+// app.get('/users/:id/offers', (req, res) => {
+//     const userId = req.params.id;
+
+//     // This query gets the rides AND counts how many bookings are pending/confirmed
+//     const sql = `
+//         SELECT 
+//             r.*,
+//             DATE_FORMAT(r.date_, '%m/%d') AS date,
+//             (SELECT COUNT(*) FROM Booking WHERE rideID = r.rideID AND status = 'pending') AS pendingCount,
+//             (SELECT COUNT(*) FROM Booking WHERE rideID = r.rideID AND status = 'confirmed') AS confirmedCount
+//         FROM Ride r
+//         WHERE r.goldCardNumber = ?
+//         ORDER BY r.date_ DESC
+//     `;
+
+//     db.query(sql, [userId], (err, results) => {
+//         if (err) return res.status(500).json({ error: "Database error" });
+//         res.status(200).json(results);
+//     });
+// });
+app.get('/users/:id/offers', (req, res) => {
+    const userId = req.params.id;
+
+    // 1. First, get all rides created by this driver
+    const ridesSql = `
+        SELECT *, DATE_FORMAT(date_, '%m/%d') AS date 
+        FROM Ride 
+        WHERE goldCardNumber = ? 
+        ORDER BY date_ DESC`;
+
+    db.query(ridesSql, [userId], (err, rides) => {
+        if (err) return res.status(500).json({ error: "Database error fetching rides" });
+        if (rides.length === 0) return res.json([]);
+
+        // 2. Get all bookings for THESE specific rides, including passenger names
+        const rideIds = rides.map(r => r.rideID);
+        const bookingsSql = `
+            SELECT 
+                b.bookingID, b.status, b.rideID, 
+                u.name, u.goldCardNumber AS passengerID,
+                u.numberStars AS passengerRating,
+                (SELECT AVG(stars) FROM Review WHERE bookingID IN (SELECT bookingID FROM Booking WHERE goldCardNumber = u.goldCardNumber)) AS rating
+            FROM Booking b
+            JOIN User u ON b.goldCardNumber = u.goldCardNumber
+            WHERE b.rideID IN (?)`;
+
+        db.query(bookingsSql, [rideIds], (err, bookings) => {
+            if (err) return res.status(500).json({ error: "Database error fetching bookings" });
+
+            // 3. Merge the data: Attach bookings to their respective rides
+            const results = rides.map(ride => {
+                const rideBookings = bookings.filter(b => b.rideID === ride.rideID);
+                
+                return {
+                    ...ride,
+                    pendingRequests: rideBookings.filter(b => b.status === 'pending'),
+                    confirmedPassengers: rideBookings.filter(b => b.status === 'confirmed')
+                };
+            });
+
+            res.status(200).json(results);
+        });
+    });
+});
+
 // --- POST /rides ---
 // Description: Creates a new ride (Driver only)
 app.post('/rides', (req, res) => {
@@ -374,9 +443,9 @@ app.post('/rides', (req, res) => {
             }
 
             // Step 3: Insert into database
-            const sql = `INSERT INTO Ride (rideID, destination, date_, departureTime, price, availableSeats, goldCardNumber) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?)`;
-            const values = [nextId, destination, date_, departureTime, price, availableSeats, goldCardNumber];
+            const sql = `INSERT INTO Ride (rideID, destination, date_, departureTime, price, availableSeats, goldCardNumber, origin) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+            const values = [nextId, destination, date_, departureTime, price, availableSeats, goldCardNumber, origin];
 
             db.query(sql, values, (err, result) => {
                 if (err) {
