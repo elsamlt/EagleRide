@@ -36,7 +36,7 @@
         <i v-if="driver.prefs.allowMusic" class="material-icons">music_note</i>
         <i v-else class="material-icons">music_off</i>
         <p>
-          {{ driver.prefs.allowMusic ? `Music: ${driver.prefs.musicGenre} preferred` : "No music during the drive" }}
+          {{ driver.prefs.allowMusic ? "We can put on a good playlist" : "No music during the drive" }}
         </p>
       </div>
 

@@ -395,11 +395,22 @@ app.post('/rides', (req, res) => {
 app.get('/rides/:id', (req, res) => {
     const rideId = req.params.id;
     
-    // Returns full ride object including the fields specified
     const sql = `
-        SELECT destination, date_ AS date_, departureTime, price, availableSeats, goldCardNumber AS goldCardNumber 
-        FROM Ride 
-        WHERE rideID = ?`;
+        SELECT 
+            r.rideID, 
+            r.destination, 
+            r.origin, 
+            r.date_ AS date, 
+            r.departureTime, 
+            r.price, 
+            r.availableSeats, 
+            r.goldCardNumber AS driverID,
+            u.name AS driverName,
+            u.phoneNumber AS driverPhone,
+            u.email AS driverEmail
+        FROM Ride r
+        JOIN User u ON r.goldCardNumber = u.goldCardNumber
+        WHERE r.rideID = ?`;
 
     db.query(sql, [rideId], (err, result) => {
         if (err) {
@@ -411,10 +422,9 @@ app.get('/rides/:id', (req, res) => {
             return res.status(404).json({ error: "Ride not found" });
         }
         
-        // Returns the single ride object
+        // Renvoie l'objet complet avec les infos du trajet + du conducteur
         res.status(200).json(result[0]);
     });
-
 });
 
 // --- GET /rides/:id/reviews ---

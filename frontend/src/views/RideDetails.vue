@@ -12,7 +12,7 @@
         <section class="card route-card">
           <div class="route-container">
             <div class="stop">
-              <span class="city">{{ ride.origin || 'Origin' }}</span>
+              <span class="city">{{ ride.origin }}</span>
               <span class="time">{{ ride.departureTime }}</span>
             </div>
 
@@ -23,7 +23,7 @@
 
             <div class="stop">
               <span class="city">{{ ride.destination }}</span>
-              <span class="time">{{ ride.arrivalTime || 'TBD' }}</span>
+              <span class="time">{{ ride.arrivalTime }}</span>
             </div>
           </div>
         </section>
@@ -57,7 +57,7 @@
             </div>
             <p class="route-summary">{{ ride.destination }}</p>
             <div class="mini-visual">
-               <span>{{ ride.arrivalTime || 'TBD' }}</span>
+               <span>{{ ride.arrivalTime }}</span>
             </div>
           </div>
 
@@ -152,7 +152,7 @@ const loadRideDetails = async () => {
     }
 
     const rideData = await rideService.getDetails(rideId.value);
-    ride.value = rideData;
+    ride.value = rideData.data;
   } catch (error) {
     console.error('Ride fetch failed', error);
     errorMessage.value = error.response?.data?.error || error.message || 'Unable to load ride details.';
@@ -161,7 +161,7 @@ const loadRideDetails = async () => {
   }
 
   try {
-    const driverData = await userService.getProfile(ride.value.goldCardNumber);
+    const driverData = await userService.getProfile(ride.value.driverID);
 
     driver.value = {
       ...driverData,
@@ -182,7 +182,7 @@ const loadRideDetails = async () => {
   }
 
   try {
-    car.value = await vehicleService.getByUser(ride.value.goldCardNumber);
+    car.value = await vehicleService.getByUser(ride.value.driverID);
   } catch (error) {
     console.warn('Vehicle fetch failed', error);
     car.value = null;
