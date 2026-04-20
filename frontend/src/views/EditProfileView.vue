@@ -10,10 +10,13 @@
 
       <div class="form-card">
         <UserForm
+          v-if="user || mode === 'create'"
+          :key="user.goldCardNumber"
           mode="edit"
-          :initialData="userData"
-          @success="onUpdateSuccess"
+          :initialData="fullUserData"
+          @save="handleSave"
         />
+        <div v-else class="loading-state">Loading profile...</div>
       </div>
 
     </div>
@@ -21,48 +24,68 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { computed, ref } from 'vue';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+import { vehicleService, userService } from '@/api';
 import UserForm from '@/components/UserForm.vue';
 
 const router = useRouter();
-const userData = ref(null);
+const authStore = useAuthStore();
+const user = computed(() => authStore.user);
+const fullUserData = ref(null);
+const isLoading = ref(true);
 
-onMounted(async () => {
+const loadData = async () => {
   try {
-    // Replace with your actual API call:
-    // const response = await axios.get('/api/user/profile');
-    // userData.value = response.data;
+    const userId = authStore.user?.goldCardNumber;
+    if (!userId) return;
 
-    // Mock Data for UI Testing:
-    userData.value = {
-      fullName: 'Ben Harrison',
-      email: 'harrisb@juniata.edu',
-      dob: '2002-12-03',
-      phone: '814-555-0192',
-      prefs: { music: true, chat: true, smoking: false, pets: true },
-      driverInfo: {
-        license: 'PA-9928374',
-        model: 'Honda Civic',
-        color: 'Silver',
-        plate: 'ABC-1234'
-      }
+    const [userRes, vehicleRes] = await Promise.all([
+      authStore.user,
+      vehicleService.getByUser(userId)
+    ]);
+
+    fullUserData.value = {
+      ...userRes,
+      vehicle: vehicleRes
     };
   } catch (error) {
-    console.error("Error loading profile:", error);
+    console.error("Failed to load profile data", error);
+  } finally {
+    isLoading.value = false;
   }
-});
+};
 
-const onUpdateSuccess = () => {
-  // Trigger a success notification here if you have a snackbar/toast component
-  console.log("Account updated successfully!");
-  router.push('/dashboard/profile');
+onMounted(loadData);
+
+const handleSave = async ({ user: updatedUser, vehicle: updatedVehicle }) => {
+  try {
+    const userId = authStore.user.goldCardNumber;
+
+    const [userResult, vehicleResult] = await Promise.all([
+      userService.updateProfile(userId, updatedUser),
+      vehicleService.update(userId, updatedVehicle)
+    ]);
+
+    authStore.user = { ...authStore.user, ...userResult };
+
+    localStorage.setItem('user', JSON.stringify(authStore.user));
+
+    console.log("Profile and Vehicle updated successfully!");
+
+    router.push('/dashboard');
+
+  } catch (error) {
+    console.error('Update failed:', error);
+  }
 };
 </script>
 
 <style scoped>
 .edit-profile-view {
-  max-width: 1200px; /* Slightly wider to accommodate two columns in UserForm */
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -73,7 +96,7 @@ const onUpdateSuccess = () => {
 .back-button {
   background: none;
   border: none;
-  color: #9CA3AF;
+  color: var(--light-grey);
   font-family: var(--font-main);
   font-size: 14px;
   cursor: pointer;
@@ -107,13 +130,13 @@ const onUpdateSuccess = () => {
 }
 
 .form-subtitle {
-  color: #6B7280;
+  color: var(--light-grey);
   font-size: 16px;
 }
 
 .loading-state {
   text-align: center;
   padding: 50px;
-  color: #9CA3AF;
+  color: var(--light-grey);
 }
 </style>
