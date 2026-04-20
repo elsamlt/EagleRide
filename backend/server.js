@@ -130,6 +130,8 @@ app.post('/auth/login', (req, res) => {
                     goldCardNumber: user.goldCardNumber, 
                     name: user.name, 
                     email: user.email,
+                    dateOfBirth: user.dateOfBirth,
+                    phoneNumber: user.phoneNumber,
                     prefersMusic: user.prefersMusic,          
                     prefersConversation: user.prefersConversation, 
                     prefersPets: user.prefersPets,             

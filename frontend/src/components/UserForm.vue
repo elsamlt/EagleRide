@@ -1,4 +1,4 @@
-<template>
+x <template>
   <div class="user-form-container">
     <div class="form-header">
       <h1>{{ isEditMode ? 'Edit Your Account' : 'Create Your Account' }}</h1>
@@ -108,12 +108,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import AppButton from './AppButton.vue';
 
 const props = defineProps({
-  mode: { type: String, default: 'create' }
+  mode: { type: String, default: 'create' },
+  initialData: { type: Object, default: () => ({}) }
 });
+
+const emit = defineEmits(['save']);
 
 const isEditMode = computed(() => props.mode === 'edit');
 
@@ -137,6 +140,41 @@ const vehicle = ref({
   plateNumber: ''
 });
 
+watch(
+  () => props.initialData,
+  (data) => {
+    if (!data || Object.keys(data).length === 0) return;
+
+    let cleanDate = '';
+    if (data.dateOfBirth) {
+      cleanDate = new Date(data.dateOfBirth).toISOString().split('T')[0];
+    }
+
+    user.value = {
+      ...user.value,
+      name: data.name || '',
+      email: data.email || '',
+      goldCardNumber: data.goldCardNumber || '',
+      dateOfBirth: cleanDate,
+      phoneNumber: data.phoneNumber || '',
+      driverLicense: data.driverLicense || '',
+      prefersMusic: data.prefersMusic || 'no',
+      prefersConversation: data.prefersConversation || 'no',
+      prefersSmoke: data.prefersSmoke || 'no',
+      prefersPets: data.prefersPets || 'no'
+    };
+
+    if (data.vehicle || data.model) {
+      vehicle.value = {
+        model: data.vehicle?.model || data.model || '',
+        color: data.vehicle?.color || data.color || '',
+        plateNumber: data.vehicle?.plateNumber || data.plateNumber || ''
+      };
+    }
+  },
+  { immediate: true, deep: true }
+);
+
 const availablePrefs = [
   { id: 'music', key: 'prefersMusic', label: 'Music', icon: 'music_note', sub: 'Okay during ride?' },
   { id: 'chat', key: 'prefersConversation', label: 'Conversation', icon: 'forum', sub: 'Like to chat?' },
@@ -150,7 +188,10 @@ const togglePref = (id) => {
 };
 
 const submitUser = () => {
-  console.log("Form Data:", { ...user.value, vehicle: vehicle.value });
+  emit('save', {
+    user: user.value,
+    vehicle: vehicle.value
+  });
 };
 </script>
 
