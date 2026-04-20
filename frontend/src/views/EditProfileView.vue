@@ -13,7 +13,7 @@
           v-if="user || mode === 'create'"
           :key="user.goldCardNumber"
           mode="edit"
-          :initialData="user"
+          :initialData="fullUserData"
           @save="handleSave"
         />
         <div v-else class="loading-state">Loading profile...</div>
@@ -24,32 +24,68 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import { userService } from '@/api';
+import { vehicleService, userService } from '@/api';
 import UserForm from '@/components/UserForm.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
+const fullUserData = ref(null);
+const isLoading = ref(true);
 
-const handleSave = async ({ user: updatedUser, vehicle }) => {
+const loadData = async () => {
   try {
-    const result = await userService.dcnjdk({ user: updatedUser, vehicle });
-    authStore.user = result;
-    localStorage.setItem('user', JSON.stringify(result));
-    console.log("Account updated successfully!");
-    router.push('/dashboard/profile');
+    const userId = authStore.user?.goldCardNumber;
+    if (!userId) return;
+
+    const [userRes, vehicleRes] = await Promise.all([
+      authStore.user,
+      vehicleService.getByUser(userId)
+    ]);
+
+    fullUserData.value = {
+      ...userRes,
+      vehicle: vehicleRes
+    };
   } catch (error) {
-    console.error('Update failed', error);
+    console.error("Failed to load profile data", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(loadData);
+
+const handleSave = async ({ user: updatedUser, vehicle: updatedVehicle }) => {
+  try {
+    const userId = authStore.user.goldCardNumber;
+
+    const [userResult, vehicleResult] = await Promise.all([
+      userService.updateProfile(userId, updatedUser),
+      vehicleService.update(userId, updatedVehicle)
+    ]);
+
+    authStore.user = { ...authStore.user, ...userResult };
+
+    localStorage.setItem('user', JSON.stringify(authStore.user));
+
+    console.log("Profile and Vehicle updated successfully!");
+
+    router.push('/dashboard');
+
+  } catch (error) {
+    console.error('Update failed:', error);
   }
 };
 </script>
 
 <style scoped>
 .edit-profile-view {
-  max-width: 1200px; /* Slightly wider to accommodate two columns in UserForm */
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -60,7 +96,7 @@ const handleSave = async ({ user: updatedUser, vehicle }) => {
 .back-button {
   background: none;
   border: none;
-  color: #9CA3AF;
+  color: var(--light-grey);
   font-family: var(--font-main);
   font-size: 14px;
   cursor: pointer;
@@ -94,13 +130,13 @@ const handleSave = async ({ user: updatedUser, vehicle }) => {
 }
 
 .form-subtitle {
-  color: #6B7280;
+  color: var(--light-grey);
   font-size: 16px;
 }
 
 .loading-state {
   text-align: center;
   padding: 50px;
-  color: #9CA3AF;
+  color: var(--light-grey);
 }
 </style>

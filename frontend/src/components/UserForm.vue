@@ -163,7 +163,6 @@ watch(
       prefersSmoke: data.prefersSmoke || 'no',
       prefersPets: data.prefersPets || 'no'
     };
-    console.log("Loaded user data:", user.value);
 
     if (data.vehicle || data.model) {
       vehicle.value = {
@@ -171,7 +170,6 @@ watch(
         color: data.vehicle?.color || data.color || '',
         plateNumber: data.vehicle?.plateNumber || data.plateNumber || ''
       };
-      console.log("Loaded vehicle data:", vehicle.value);
     }
   },
   { immediate: true, deep: true }
