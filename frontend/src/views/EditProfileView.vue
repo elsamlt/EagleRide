@@ -10,10 +10,13 @@
 
       <div class="form-card">
         <UserForm
+          v-if="user || mode === 'create'"
+          :key="user.goldCardNumber"
           mode="edit"
           :initialData="user"
           @save="handleSave"
         />
+        <div v-else class="loading-state">Loading profile...</div>
       </div>
 
     </div>

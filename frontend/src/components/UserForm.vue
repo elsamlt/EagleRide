@@ -143,29 +143,38 @@ const vehicle = ref({
 watch(
   () => props.initialData,
   (data) => {
-    if (!data) return;
+    if (!data || Object.keys(data).length === 0) return;
+
+    let cleanDate = '';
+    if (data.dateOfBirth) {
+      cleanDate = new Date(data.dateOfBirth).toISOString().split('T')[0];
+    }
 
     user.value = {
-      name: data.name || data.fullName || '',
+      ...user.value,
+      name: data.name || '',
       email: data.email || '',
-      password: '',
       goldCardNumber: data.goldCardNumber || '',
-      dateOfBirth: data.dateOfBirth || data.dob || '',
-      phoneNumber: data.phoneNumber || data.phone || '',
-      driverLicense: data.driverLicense || data.driverInfo?.license || '',
+      dateOfBirth: cleanDate,
+      phoneNumber: data.phoneNumber || '',
+      driverLicense: data.driverLicense || '',
       prefersMusic: data.prefersMusic || 'no',
       prefersConversation: data.prefersConversation || 'no',
       prefersSmoke: data.prefersSmoke || 'no',
       prefersPets: data.prefersPets || 'no'
     };
+    console.log("Loaded user data:", user.value);
 
-    vehicle.value = {
-      model: data.vehicle?.model || data.driverInfo?.model || '',
-      color: data.vehicle?.color || data.driverInfo?.color || '',
-      plateNumber: data.vehicle?.plateNumber || data.driverInfo?.plate || ''
-    };
+    if (data.vehicle || data.model) {
+      vehicle.value = {
+        model: data.vehicle?.model || data.model || '',
+        color: data.vehicle?.color || data.color || '',
+        plateNumber: data.vehicle?.plateNumber || data.plateNumber || ''
+      };
+      console.log("Loaded vehicle data:", vehicle.value);
+    }
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 );
 
 const availablePrefs = [

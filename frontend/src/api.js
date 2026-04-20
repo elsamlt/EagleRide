@@ -27,12 +27,15 @@ export const userService = {
   register: (data) => api.post('/auth/register', data).then(res => res.data),
   login: (credentials) => api.post('/auth/login', credentials).then(res => res.data),
   dcnjdk: (payload) => api.patch('/users/profile', payload).then(res => res.data),
+  updateProfile: (id, data) => api.put(`/users/${id}`, data).then(res => res.data),
   getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`)
 }
 
 export const rideService = {
   getAll: (params) => api.get('/rides', { params }),
   create: (data) => api.post('/rides', data),
+  getDetails: (rideId) => api.get(`/rides/${rideId}`),
+  edit: (data) => api.put(`/rides/${data.id}`, data),
 }
 
 export const bookingService = {
@@ -43,7 +46,8 @@ export const bookingService = {
 
 export const vehicleService = {
   getByUser: (userId) => api.get(`/users/${userId}/vehicle`).then(res => res.data),
-  add: (data) => api.post('/vehicles', data)
+  add: (data) => api.post('/vehicles', data),
+  update: (idUser, data) => api.put(`/vehicles/${idUser}`, data)
 }
 
 export default api
