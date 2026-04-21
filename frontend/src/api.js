@@ -26,6 +26,7 @@ export const userService = {
   getProfile: (id) => api.get(`/users/${id}`).then(res => res.data),
   register: (data) => api.post('/auth/register', data).then(res => res.data),
   login: (credentials) => api.post('/auth/login', credentials).then(res => res.data),
+  dcnjdk: (payload) => api.patch('/users/profile', payload).then(res => res.data),
   updateProfile: (id, data) => api.put(`/users/${id}`, data).then(res => res.data),
   getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`),
   submitReview: (rideId, data) => api.post(`/rides/${rideId}/reviews`, data),
@@ -34,6 +35,8 @@ export const userService = {
 
 export const rideService = {
   getAll: (params) => api.get('/rides', { params }),
+  getDetails: (rideId) => api.get(`/rides/${rideId}`).then(res => res.data),
+  getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`).then(res => res.data),
   create: (data) => api.post('/rides', data),
   getDetails: (rideId) => api.get(`/rides/${rideId}`),
   edit: (data) => api.put(`/rides/${data.id}`, data),
