@@ -27,14 +27,20 @@ export const userService = {
   register: (data) => api.post('/auth/register', data).then(res => res.data),
   login: (credentials) => api.post('/auth/login', credentials).then(res => res.data),
   updateProfile: (id, data) => api.put(`/users/${id}`, data).then(res => res.data),
-  getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`)
+  getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`),
+  submitReview: (rideId, data) => api.post(`/rides/${rideId}/reviews`, data),
+  getOffers: (userId) => api.get(`/users/${userId}/offers`).then(res => res.data)
 }
 
 export const rideService = {
   getAll: (params) => api.get('/rides', { params }),
+  getDetails: (rideId) => api.get(`/rides/${rideId}`).then(res => res.data),
+  getReviews: (rideId) => api.get(`/rides/${rideId}/reviews`).then(res => res.data),
   create: (data) => api.post('/rides', data),
   getDetails: (rideId) => api.get(`/rides/${rideId}`),
   edit: (data) => api.put(`/rides/${data.id}`, data),
+  incrementSeats: (rideId) => api.patch(`/rides/${rideId}/increment-seats`),
+  delete: (id) => api.delete(`/rides/${id}`)
 }
 
 export const bookingService = {
