@@ -20,7 +20,7 @@
           @click="$emit('cancel', ride.id)">
           Cancel
         </AppButton>
-        <AppButton size="standard"">
+        <AppButton size="standard" @click="$emit('view-details', ride.rideID)">
           Details
         </AppButton>
       </div>
@@ -32,16 +32,12 @@
 import { computed } from 'vue';
 import AppButton from '@/components/AppButton.vue';
 
-// const props = defineProps({
-//   ride: { type: Object, required: true },
-//   // 'home' (just Details) or 'dashboard' (Cancel + Details)
-//   viewMode: {
-//     type: String,
-//     default: 'home'
-//   }
-// });
 const props = defineProps({
-  ride: { type: Object, required: true }
+  ride: { type: Object, required: true },
+  viewMode: {
+    type: String,
+    default: 'home'
+  }
 });
 
 defineEmits(['view-details', 'cancel']);

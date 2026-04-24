@@ -37,8 +37,12 @@
         </div>
 
         <div v-else class="rides-list">
-          <div v-for="ride in joinedRides" :key="ride.bookingID" class="ride-wrapper">
-            <RideCard :ride="ride" />
+          <div v-for="(category, key) in organizedJoinedRides" :key="key" class="status-group">
+            <h2 class="status-title" :class="key">{{ category.label }}</h2>
+
+            <div v-for="ride in category.rides" :key="ride.bookingID" class="ride-wrapper">
+              <RideCard :ride="ride" />
+            </div>
           </div>
         </div>
       </div>
@@ -52,12 +56,12 @@
         <div v-else class="offers-list">
           <OfferCard
             v-for="offer in myOffers"
-            :key="offer.id"
+            :key="offer.rideID"
             :offer="offer"
-            @edit="handleEdit"
-            @cancel="handleCancel"
-            @approve="handleApprove"
-            @decline="handleDecline"
+            @edit="editOffer(offer.rideID)"
+            @cancel="cancelOffer(offer.rideID)"
+            @approve="approve"
+            @decline="decline"
           />
         </div>
       </div>
@@ -67,41 +71,61 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { bookingService, userService } from '@/api';
+import { bookingService, userService, rideService } from '@/api';
 import { useAuthStore } from '@/stores/auth';
 import OfferCard from '@/components/OfferCard.vue';
 import RideCard from '@/components/RideCard.vue';
+import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 const joinedRides = ref([]);
 const myOffers = ref([]);
 const isLoading = ref(true);
+const router = useRouter();
 
-const editOffer = (id) => console.log("Edit", id);
-const cancelOffer = (id) => console.log("Cancel", id);
-const approve = (id) => console.log("Approved", id);
-const decline = (id) => console.log("Declined", id);
+const editOffer = (id) => {
+  router.push(`/dashboard/edit-ride/${id}`);
+};
+
+const cancelOffer = async (id) => {
+  if (!confirm("Are you sure you want to delete this ride offer? This action cannot be undone.")) {
+    return;
+  }
+
+  try {
+    await rideService.delete(id);
+
+    await fetchDashboardData();
+  } catch (error) {
+    console.error("Error deleting ride:", error);
+    alert("Could not delete the ride. It might have confirmed passengers.");
+  }
+};
+
+const approve = (id) => {
+  bookingService.updateStatus(id, "confirmed")
+    .then(() => {
+      fetchDashboardData();
+    })
+    .catch(error => {
+      console.error("Error approving offer:", error);
+    });
+};
+
+const decline = async (bookingId, rideId) => {
+  try {
+    await bookingService.updateStatus(bookingId, "rejected");
+
+    await rideService.incrementSeats(rideId);
+
+    fetchDashboardData();
+  } catch (error) {
+    console.error("Error declining:", error);
+  }
+};
 
 const activeTab = ref('joined');
-
-// const myOffers = ref([
-//   {
-//     id: 1,
-//     origin: 'Huntingdon',
-//     destination: 'State College',
-//     date: '03/18',
-//     time: '6:00 PM',
-//     availableSeats: 2,
-//     pendingRequests: [
-//       { id: 10, name: 'Luna Morales', rating: 4.8, reviews: 42 },
-//       { id: 11, name: 'Emily Parker', rating: 5.0, reviews: 3 }
-//     ],
-//     confirmedPassengers: [
-//       { id: 20, name: 'Alice' }
-//     ]
-//   }
-// ]);
 
 const fetchDashboardData = async () => {
   if (!user.value?.goldCardNumber) return;
@@ -114,11 +138,9 @@ const fetchDashboardData = async () => {
     const dataOffers = await userService.getOffers(userId);
 
     joinedRides.value = dataJoined.data;
-    // myOffers.value = dataOffers;
 
     myOffers.value = dataOffers.map(offer => ({
       ...offer,
-      // On s'assure que le formatage du temps est propre pour l'affichage
       time: offer.departureTime
     }));
 
@@ -128,6 +150,29 @@ const fetchDashboardData = async () => {
     isLoading.value = false;
   }
 };
+
+const organizedJoinedRides = computed(() => {
+  const categories = {
+    pending: { label: 'Pending Requests', rides: [] },
+    confirmed: { label: 'Confirmed Rides', rides: [] },
+    rejected: { label: 'Rejected Requests', rides: [] },
+    cancelled: { label: 'Cancelled Rides', rides: [] }
+  };
+
+  joinedRides.value.forEach(ride => {
+    const status = ride.status?.toLowerCase() || 'pending';
+    if (categories[status]) {
+      categories[status].rides.push(ride);
+    }
+  });
+
+  return Object.keys(categories)
+    .filter(key => categories[key].rides.length > 0)
+    .reduce((obj, key) => {
+      obj[key] = categories[key];
+      return obj;
+    }, {});
+});
 
 onMounted(() => {
   fetchDashboardData();
@@ -170,5 +215,29 @@ onMounted(() => {
 
 .tab-content p {
   margin-top: 0;
+}
+
+.status-group {
+  margin-bottom: 30px;
+}
+
+.status-title {
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  margin-bottom: 15px;
+  padding-left: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Couleurs par statut */
+.status-title.confirmed { color: #2ecc71; border-left: 4px solid #2ecc71; padding-left: 10px; }
+.status-title.pending { color: var(--juniata-gold); border-left: 4px solid var(--juniata-gold); padding-left: 10px; }
+.status-title.rejected { color: #e74c3c; border-left: 4px solid #e74c3c; padding-left: 10px; }
+.status-title.cancelled { color: #95a5a6; border-left: 4px solid #95a5a6; padding-left: 10px; }
+
+.ride-wrapper {
+  margin-bottom: 12px;
 }
 </style>

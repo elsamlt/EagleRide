@@ -105,6 +105,7 @@ import { vehicleService, bookingService, rideService, userService } from '@/api'
 import DriverProfileCard from '@/components/DriverProfileCard.vue';
 import ReviewItem from '@/components/ReviewItem.vue';
 import AppButton from '@/components/AppButton.vue';
+import router from '@/router';
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -219,7 +220,8 @@ const handleBooking = async () => {
 
   try {
     await bookingService.book(rideId.value, authStore.user.goldCardNumber);
-    successMessage.value = 'Your booking is confirmed. Thank you!';
+    window.alert('Your booking is confirmed. Thank you!');
+    router.push('/dashboard');
 
     if (ride.value?.availableSeats !== undefined) {
       ride.value.availableSeats = Math.max(0, ride.value.availableSeats - 1);

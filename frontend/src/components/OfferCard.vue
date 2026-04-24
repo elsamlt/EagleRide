@@ -9,10 +9,10 @@
         </p>
       </div>
       <div class="offer-actions">
-        <AppButton size="standard" variant="primary" @click="$emit('edit', offer.id)">
+        <AppButton size="standard" variant="primary" @click="$emit('edit', offer.rideID)">
           Edit
         </AppButton>
-        <AppButton class="cancel" size="standard" variant="grey" @click="$emit('cancel', offer.id)">
+        <AppButton class="cancel" size="standard" variant="grey" @click="$emit('cancel', offer.rideID)">
           Cancel
         </AppButton>
       </div>
@@ -33,10 +33,10 @@
             </div>
           </div>
           <div class="action-buttons">
-            <AppButton size="standard" variant="primary" @click="$emit('approve', {offerId: offer.id, reqId: req.id})">
+            <AppButton size="standard" variant="primary" @click="$emit('approve', req.bookingID)">
               Accept
             </AppButton>
-            <AppButton size="standard" variant="grey" @click="$emit('decline', {offerId: offer.id, reqId: req.id})">
+            <AppButton size="standard" variant="grey" @click="$emit('decline', req.bookingID)">
               Decline
             </AppButton>
           </div>
