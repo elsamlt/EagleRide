@@ -38,14 +38,15 @@ Content-Type: application/json
 
 {
     "departureTime": "2:00:00",
-    "date_": "2026-06-15",
-    "destination": "Test",
+    "date_": "2026-06-17",
+    "destination": "Walamart",
     "availableSeats": 4,
     "price": 30,
-    "goldCardNumber": 102
+    "goldCardNumber": 55502,
+    "origin": "Juniata College"
 }
 
-### 5. Get All Available Rides (Ta route actuelle)
+### 5. Get All Available Rides 
 GET {{baseUrl}}/rides
 
 ### 6. Filter Rides by Destination
@@ -90,11 +91,11 @@ GET {{baseUrl}}/users/102/reviews
 Accept: application/json
 
 ### 15. Confirm or modify the booking status
-PATCH {{baseUrl}}/bookings/BOOK-503
+PATCH {{baseUrl}}/bookings/BOOK-505
 Content-Type: application/json
 
 {
-    "status": "cancelled"
+    "status": "confirmed"
 }
 
 ### 16. Create a new booking
@@ -102,8 +103,8 @@ POST {{baseUrl}}/bookings
 Content-Type: application/json
 
 {
-    "rideID": "RIDE-004",
-    "goldCardNumber": 55501
+    "rideID": "RIDE-005",
+    "goldCardNumber": 55502
 }
 
 ### 17. Get ALL bookings for a user
@@ -156,3 +157,13 @@ Content-Type: application/json
     "model": "Tesla Model 3",
     "color": "Midnight Silver"
 }
+
+### 25. Get all rides offered by a specific driver
+GET {{baseUrl}}/users/55501/offers
+
+### 26. Test de l'incrémentation des sièges
+# Remplace 1 par un rideID qui existe dans ta base de données
+PATCH {{baseUrl}}/rides/RIDE-005/increment-seats
+Content-Type: application/json
+
+{}

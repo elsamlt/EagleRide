@@ -3,15 +3,15 @@
     <div class="card-body">
       <div class="info-section">
         <h3 class="route-title">
-          Juniata <span class="arrow">→</span> Altoona
+          {{ ride.origin }} <span class="arrow">→</span> {{ ride.destination }}
         </h3>
         <p class="metadata">
-           Today at 5:00pm - 3 seats left
+           {{ ride.date }} at {{ ride.departureTime }} - {{ ride.availableSeats }} seats left
         </p>
 
         <div class="driver-row">
           <div class="avatar">S</div>
-          <span class="driver-name">by Kai Sterling</span>
+          <span class="driver-name">by {{ ride.driverName }}</span>
         </div>
       </div>
 
@@ -20,7 +20,7 @@
           @click="$emit('cancel', ride.id)">
           Cancel
         </AppButton>
-        <AppButton size="standard"">
+        <AppButton size="standard" @click="$emit('view-details', ride.rideID)">
           Details
         </AppButton>
       </div>
@@ -34,7 +34,6 @@ import AppButton from '@/components/AppButton.vue';
 
 const props = defineProps({
   ride: { type: Object, required: true },
-  // 'home' (just Details) or 'dashboard' (Cancel + Details)
   viewMode: {
     type: String,
     default: 'home'
@@ -56,8 +55,8 @@ defineEmits(['view-details', 'cancel']);
   border: 1px solid #eee;
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  /* The gold bar on the left */
   border-left: 8px solid var(--juniata-gold);
+  margin-bottom: 10px;
 }
 
 .card-body {

@@ -2,12 +2,16 @@
   <div class="dashboard-view">
     <div class="dashboard-header">
       <h1 class="page-title">My Drives</h1>
-      <button class="btn-post-ride" @click="$router.push('/dashboard/post-ride')">
+      <button
+        v-if="user?.driverLicense && user.driverLicense !== 'NULL'"
+        class="btn-post-ride"
+        @click="$router.push('/dashboard/post-ride')"
+      >
         + Post a new ride
       </button>
     </div>
 
-    <div class="tabs-nav">
+    <div v-if="user?.driverLicense && user.driverLicense !== 'NULL'" class="tabs-nav">
       <button
         :class="['tab-link', activeTab === 'joined' ? 'active' : '']"
         @click="activeTab = 'joined'"
@@ -22,8 +26,10 @@
       </button>
     </div>
 
-    <div class="tab-content">
-
+    <div :class="[
+      { 'tab-content': (activeTab === 'joined' && joinedRides.length === 0) ||
+                    (activeTab === 'offers' && myOffers.length === 0) }
+    ]">
       <div v-if="activeTab === 'joined'">
         <div v-if="joinedRides.length === 0" class="empty-state">
           <p>You have no upcoming rides as a passenger.</p>
@@ -31,9 +37,12 @@
         </div>
 
         <div v-else class="rides-list">
-          <div v-for="ride in joinedRides" :key="ride.id" class="ride-wrapper">
-            <span :class="['status-badge', ride.status]">{{ ride.status.toUpperCase() }}</span>
-            <RideCard :ride="ride" viewMode="dashboard" @cancel="cancelJoinedRide" />
+          <div v-for="(category, key) in organizedJoinedRides" :key="key" class="status-group">
+            <h2 class="status-title" :class="key">{{ category.label }}</h2>
+
+            <div v-for="ride in category.rides" :key="ride.bookingID" class="ride-wrapper">
+              <RideCard :ride="ride" />
+            </div>
           </div>
         </div>
       </div>
@@ -44,125 +53,191 @@
           <router-link to="/dashboard/post-ride" class="accent-link">Add one?</router-link>
         </div>
 
-        <div v-else class="rides-list">
-          <div v-for="offer in myOffers" :key="offer.id" class="offer-container">
-            <RideCard :ride="offer" viewMode="driver" @edit="editOffer" />
-
-            <div v-if="offer.pendingRequests?.length > 0" class="requests-box">
-              <p class="request-label">PENDING REQUESTS</p>
-              <!-- <div v-for="req in offer.pendingRequests" :key="req.id" class="request-item"> -->
-                <div class="passenger-info">
-                  <span class="avatar">{{ req.name.charAt(0) }}</span>
-                  <span>{{ req.name }} ({{ req.rating }}★)</span>
-                </div>
-                <div class="request-actions">
-                  <button class="btn-accept" @click="approvePassenger(req.id)">Accept</button>
-                  <button class="btn-decline" @click="declinePassenger(req.id)">Decline</button>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div v-else class="offers-list">
+          <OfferCard
+            v-for="offer in myOffers"
+            :key="offer.rideID"
+            :offer="offer"
+            @edit="editOffer(offer.rideID)"
+            @cancel="cancelOffer(offer.rideID)"
+            @approve="approve"
+            @decline="decline"
+          />
         </div>
       </div>
-
     </div>
-  <!-- </div> -->
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { bookingService, userService, rideService } from '@/api';
+import { useAuthStore } from '@/stores/auth';
+import OfferCard from '@/components/OfferCard.vue';
 import RideCard from '@/components/RideCard.vue';
+import { useRouter } from 'vue-router';
 
-const activeTab = ref('joined'); // 'joined' or 'offers'
+const authStore = useAuthStore();
+const user = computed(() => authStore.user);
+const joinedRides = ref([]);
+const myOffers = ref([]);
+const isLoading = ref(true);
+const router = useRouter();
 
-// Mock Data - In real life, fetch this onMounted
-const joinedRides = ref([
-  { id: 101, origin: 'Huntingdon', destination: 'State College', departureTime: '6:00 PM', status: 'confirmed', driverName: 'Kai Sterling' }
-]);
-
-const myOffers = ref([]); // Empty to test empty state
-
-const cancelJoinedRide = (id) => {
-  console.log("Cancelling booking:", id);
+const editOffer = (id) => {
+  router.push(`/dashboard/edit-ride/${id}`);
 };
+
+const cancelOffer = async (id) => {
+  if (!confirm("Are you sure you want to delete this ride offer? This action cannot be undone.")) {
+    return;
+  }
+
+  try {
+    await rideService.delete(id);
+
+    await fetchDashboardData();
+  } catch (error) {
+    console.error("Error deleting ride:", error);
+    alert("Could not delete the ride. It might have confirmed passengers.");
+  }
+};
+
+const approve = (id) => {
+  bookingService.updateStatus(id, "confirmed")
+    .then(() => {
+      fetchDashboardData();
+    })
+    .catch(error => {
+      console.error("Error approving offer:", error);
+    });
+};
+
+const decline = async (bookingId, rideId) => {
+  try {
+    await bookingService.updateStatus(bookingId, "rejected");
+
+    await rideService.incrementSeats(rideId);
+
+    fetchDashboardData();
+  } catch (error) {
+    console.error("Error declining:", error);
+  }
+};
+
+const activeTab = ref('joined');
+
+const fetchDashboardData = async () => {
+  if (!user.value?.goldCardNumber) return;
+
+  isLoading.value = true;
+
+  try {
+    const userId = user.value.goldCardNumber;
+    const dataJoined = await bookingService.getUserBookings(userId);
+    const dataOffers = await userService.getOffers(userId);
+
+    joinedRides.value = dataJoined.data;
+
+    myOffers.value = dataOffers.map(offer => ({
+      ...offer,
+      time: offer.departureTime
+    }));
+
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const organizedJoinedRides = computed(() => {
+  const categories = {
+    pending: { label: 'Pending Requests', rides: [] },
+    confirmed: { label: 'Confirmed Rides', rides: [] },
+    rejected: { label: 'Rejected Requests', rides: [] },
+    cancelled: { label: 'Cancelled Rides', rides: [] }
+  };
+
+  joinedRides.value.forEach(ride => {
+    const status = ride.status?.toLowerCase() || 'pending';
+    if (categories[status]) {
+      categories[status].rides.push(ride);
+    }
+  });
+
+  return Object.keys(categories)
+    .filter(key => categories[key].rides.length > 0)
+    .reduce((obj, key) => {
+      obj[key] = categories[key];
+      return obj;
+    }, {});
+});
+
+onMounted(() => {
+  fetchDashboardData();
+});
+
 </script>
 
 <style scoped>
-.dashboard-view {
-  width: 100%;
-}
+/* Layout */
+.dashboard-view { width: 100%; max-width: 900px; margin: 0 auto; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; }
+.page-title { color: var(--juniata-blue); font-weight: 800; }
 
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.page-title {
-  color: var(--juniata-blue);
-  font-weight: 700;
-  margin: 0;
-}
-
-/* Gold Button Style from screenshot */
 .btn-post-ride {
   background-color: var(--juniata-gold);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 25px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  color: var(--white); border: none; padding: 10px 24px;
+  border-radius: 25px; font-weight: 700; cursor: pointer;
 }
 
-.tabs-nav {
-  display: flex;
-  gap: 30px;
-  border-bottom: 1px solid #E5E7EB;
-  margin-bottom: 25px;
-}
-
+/* Tabs */
+.tabs-nav { display: flex; gap: 20px; border-bottom: 1px solid var(--light-grey); margin-bottom: 30px; }
 .tab-link {
-  background: none;
-  border: none;
-  padding: 10px 5px;
-  cursor: pointer;
-  color: #9CA3AF;
-  font-weight: 500;
+  background: none; border: none; padding: 10px 0;
+  color: var(--text-dark); cursor: pointer; font-size: 14px;
 }
-
 .tab-link.active {
-  color: var(--juniata-blue);
-  border-bottom: 3px solid var(--juniata-blue);
-  font-weight: 700;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  color: #6B7280;
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #E5E7EB;
+  color: var(--juniata-blue); border-bottom: 3px solid var(--juniata-blue);;
 }
 
 .accent-link {
   color: var(--juniata-gold);
-  text-decoration: underline;
-  font-weight: 600;
 }
 
-.status-badge {
-  display: inline-block;
-  font-size: 10px;
-  padding: 4px 12px;
-  border-radius: 10px;
-  margin-bottom: 8px;
-  border: 1px solid;
+.tab-content {
+  background-color: var(--white);
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
 }
 
-.status-badge.confirmed { color: #3B82F6; border-color: #3B82F6; background: #EFF6FF; }
-.status-badge.pending { color: #F59E0B; border-color: #F59E0B; background: #FFFBEB; }
+.tab-content p {
+  margin-top: 0;
+}
+
+.status-group {
+  margin-bottom: 30px;
+}
+
+.status-title {
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  margin-bottom: 15px;
+  padding-left: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Couleurs par statut */
+.status-title.confirmed { color: #2ecc71; border-left: 4px solid #2ecc71; padding-left: 10px; }
+.status-title.pending { color: var(--juniata-gold); border-left: 4px solid var(--juniata-gold); padding-left: 10px; }
+.status-title.rejected { color: #e74c3c; border-left: 4px solid #e74c3c; padding-left: 10px; }
+.status-title.cancelled { color: #95a5a6; border-left: 4px solid #95a5a6; padding-left: 10px; }
+
+.ride-wrapper {
+  margin-bottom: 12px;
+}
 </style>

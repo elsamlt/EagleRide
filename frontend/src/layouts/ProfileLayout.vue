@@ -58,11 +58,6 @@ const goToSettings = () => {
   align-items: start;
 }
 
-.sidebar {
-  position: sticky;
-  top: 100px; /*  Keeps the profile visible while scrolling */
-}
-
 .main-content {
   /*  This area will contain My Drives, Post Ride, etc. */
   min-height: 500px;

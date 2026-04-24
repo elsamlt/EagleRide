@@ -316,16 +316,26 @@ app.put('/vehicles/:id', (req, res) => {
 // --- GET /rides ---
 // Description: Returns a list of all available rides
 app.get('/rides', (req, res) => {
-    const { destination, date } = req.query;
+    const { destination, date, userId } = req.query;
 
-    // only show rides with available seats
+    let params = [];
+
     let sql = `
-        SELECT r.rideID, r.destination, r.departureTime, r.price, r.availableSeats, u.name AS driverName 
+        SELECT r.rideID, r.destination, r.departureTime, r.price, r.origin, r.availableSeats, r.date_, u.name AS driverName 
         FROM Ride r
         JOIN User u ON r.goldCardNumber = u.goldCardNumber
-        WHERE r.availableSeats > 0`;
-    
-    let params = [];
+        WHERE r.availableSeats > 0
+    `;
+
+    if (userId) {
+        sql += ` 
+            AND r.goldCardNumber != (SELECT goldCardNumber FROM User WHERE goldCardNumber = ?)
+            AND r.rideID NOT IN (
+                SELECT rideID FROM Booking WHERE goldCardNumber = (SELECT goldCardNumber FROM User WHERE goldCardNumber = ?)
+            )
+        `;
+        params.push(userId, userId);
+    }
 
     if (destination) {
         sql += " AND r.destination = ?";
@@ -336,6 +346,8 @@ app.get('/rides', (req, res) => {
         params.push(date);
     }
 
+    sql += " ORDER BY r.date_ ASC, r.departureTime ASC";
+
     db.query(sql, params, (err, results) => {
         if (err) {
             console.error("Fetch Rides Error:", err);
@@ -345,41 +357,81 @@ app.get('/rides', (req, res) => {
     });
 });
 
+/**
+ * GET /users/:id/offers
+ * Description: Returns rides created by the user with their associated bookings.
+ */
+app.get('/users/:id/offers', (req, res) => {
+    const userId = req.params.id;
+
+    const ridesSql = `
+        SELECT *, DATE_FORMAT(date_, '%m/%d') AS date 
+        FROM Ride 
+        WHERE goldCardNumber = ? 
+        ORDER BY date_ DESC`;
+
+    db.query(ridesSql, [userId], (err, rides) => {
+        if (err) return res.status(500).json({ error: "Database error fetching rides" });
+        if (rides.length === 0) return res.json([]);
+
+        const rideIds = rides.map(r => r.rideID);
+        const bookingsSql = `
+            SELECT 
+                b.bookingID, b.status, b.rideID, 
+                u.name, u.goldCardNumber AS passengerID,
+                u.numberStars AS passengerRating,
+                (SELECT AVG(stars) FROM Review WHERE bookingID IN (SELECT bookingID FROM Booking WHERE goldCardNumber = u.goldCardNumber)) AS rating
+            FROM Booking b
+            JOIN User u ON b.goldCardNumber = u.goldCardNumber
+            WHERE b.rideID IN (?)`;
+
+        db.query(bookingsSql, [rideIds], (err, bookings) => {
+            if (err) return res.status(500).json({ error: "Database error fetching bookings" });
+
+            const results = rides.map(ride => {
+                const rideBookings = bookings.filter(b => b.rideID === ride.rideID);
+                
+                return {
+                    ...ride,
+                    pendingRequests: rideBookings.filter(b => b.status === 'pending'),
+                    confirmedPassengers: rideBookings.filter(b => b.status === 'confirmed')
+                };
+            });
+
+            res.status(200).json(results);
+        });
+    });
+});
+
 // --- POST /rides ---
 // Description: Creates a new ride (Driver only)
 app.post('/rides', (req, res) => {
-    const { destination, date_, departureTime, price, availableSeats, goldCardNumber } = req.body;
+    const { destination, date_, departureTime, price, availableSeats, goldCardNumber, origin } = req.body;
 
-    // Step 1: Verify driver profile
     const verifySql = "SELECT profileVerified FROM User WHERE goldCardNumber = ?";
     db.query(verifySql, [goldCardNumber], (err, results) => {
         if (err || results.length === 0 || !results[0].profileVerified) {
             return res.status(403).json({ error: "Only verified drivers can post rides" });
         }
 
-        // Step 2: Get the last rideID
         const maxIdSql = "SELECT MAX(rideID) AS lastId FROM Ride";
         db.query(maxIdSql, (err, maxResult) => {
             if (err) return res.status(500).json({ error: "Database error during ID fetch" });
 
-            let nextId = "RIDE-001"; // Default ID if the table is empty
+            let nextId = "RIDE-001";
 
             if (maxResult[0].lastId) {
-                // Extract the numeric part (e.g., "001" from "RIDE-001")
                 const lastIdString = maxResult[0].lastId; 
-                const numericPart = parseInt(lastIdString.split('-')[1]); // Converts "001" to number 1
+                const numericPart = parseInt(lastIdString.split('-')[1]); 
                 
-                const nextNumber = numericPart + 1; // Increment (1 + 1 = 2)
+                const nextNumber = numericPart + 1;
 
-                // Format back to "RIDE-XXX" with leading zeros
-                // padStart(3, '0') transforms 2 into "002"
                 nextId = `RIDE-${nextNumber.toString().padStart(3, '0')}`;
             }
 
-            // Step 3: Insert into database
-            const sql = `INSERT INTO Ride (rideID, destination, date_, departureTime, price, availableSeats, goldCardNumber) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?)`;
-            const values = [nextId, destination, date_, departureTime, price, availableSeats, goldCardNumber];
+            const sql = `INSERT INTO Ride (rideID, destination, date_, departureTime, price, availableSeats, goldCardNumber, origin) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+            const values = [nextId, destination, date_, departureTime, price, availableSeats, goldCardNumber, origin];
 
             db.query(sql, values, (err, result) => {
                 if (err) {
@@ -510,6 +562,17 @@ app.put('/rides/:id', (req, res) => {
     });
 });
 
+// --- PATCH increment seats ---
+app.patch('/rides/:id/increment-seats', (req, res) => {
+    const rideID = req.params.id;
+    const sql = "UPDATE Ride SET availableSeats = availableSeats + 1 WHERE rideID = ?";
+
+    db.query(sql, [rideID], (err, result) => {
+        if (err) return res.status(500).json(err);
+        res.json({ message: "Seat incremented" });
+    });
+});
+
 // --- GET /users/:id/rides ---
 // Description: Returns all rides offered by a specific driver (goldCardNumber)
 app.get('/users/:id/rides', (req, res) => {
@@ -625,10 +688,14 @@ app.get('/users/:id/bookings', (req, res) => {
             r.rideID, 
             r.destination, 
             r.departureTime, 
-            r.availableSeats 
+            r.availableSeats,
+            r.origin, 
+            DATE_FORMAT(r.date_, '%m/%d') AS date,
+            u.name AS driverName
         FROM Booking b
         JOIN Ride r ON b.rideID = r.rideID
-        WHERE b.goldCardNumber = ?
+        JOIN User u ON r.goldCardNumber = u.goldCardNumber 
+        WHERE b.goldCardNumber = ? 
     `;
 
     const params = [goldCardNumber];
