@@ -1,41 +1,36 @@
-<script setup>
-import { ref } from 'vue'
-import { userService } from '@/api'
-import UserForm from '@/components/UserForm.vue'
-
-const email = ref('')
-const password = ref('')
-
-const handleLogin = () => {
-  // Team will implement login logic here
-}
-</script>
-
 <template>
-  <div class="register-profile-view">
-
-      <div class="form-card">
-        <UserForm
-          mode="create"
-          @success="handleLogin"
-        />
-      </div>
-
+  <div class="auth-page-wrapper">
+    <div class="auth-branding">
+      <img src="@/assets/logo-juniata.png" alt="Juniata College" />
     </div>
+
+    <UserForm mode="create" @success="handleSuccess" />
+  </div>
 </template>
 
+<script setup>
+import UserForm from '@/components/UserForm.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const handleSuccess = () => {
+  router.push('/auth/login');
+};
+</script>
+
 <style scoped>
-
-.register-profile-view {
-  max-width: 1200px; /* Slightly wider to accommodate two columns in UserForm */
-  margin: 0 auto;
+.auth-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f4f7f6;
+  padding: 40px 20px;
 }
-
-.form-card {
-  background: var(--white);
-  border: 1px solid #E5E7EB;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+.auth-branding img {
+  max-width: 250px;
+  margin-bottom: 30px;
 }
 </style>

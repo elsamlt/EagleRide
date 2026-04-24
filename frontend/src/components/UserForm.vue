@@ -1,4 +1,4 @@
-x <template>
+<template>
   <div class="user-form-container">
     <div class="form-header">
       <h1>{{ isEditMode ? 'Edit Your Account' : 'Create Your Account' }}</h1>
@@ -13,50 +13,38 @@ x <template>
 
         <div class="input-group">
           <label>Full Name</label>
-          <input v-model="user.name" type="text" placeholder="John Doe">
+          <input v-model="user.name" type="text" placeholder="John Doe" required>
         </div>
 
         <div class="input-group">
           <label>Juniata Email</label>
-          <input v-model="user.email" type="email" placeholder="example@juniata.edu" :disabled="isEditMode" :class="{'disabled-input': isEditMode}">
+          <input v-model="user.email" type="email" placeholder="example@juniata.edu" :disabled="isEditMode" :class="{'disabled-input': isEditMode}" required>
         </div>
 
         <div class="input-group">
           <label>Password</label>
-          <input
-            v-model="user.password"
-            type="password"
-            placeholder="******"
-            :disabled="isEditMode"
-            :class="{'disabled-input': isEditMode}"
-          >
+          <input v-model="user.password" type="password" placeholder="******" :disabled="isEditMode" :class="{'disabled-input': isEditMode}" required>
         </div>
 
         <div class="input-group">
           <label>Gold Card Number</label>
-          <input v-model="user.goldCardNumber" type="text" placeholder="0013*******" :disabled="isEditMode" :class="{'disabled-input': isEditMode}">
+          <input v-model="user.goldCardNumber" type="text" placeholder="0013*******" :disabled="isEditMode" :class="{'disabled-input': isEditMode}" required>
         </div>
 
         <div class="input-group">
           <label>Date of Birth</label>
-          <input
-            type="text"
-            v-model="user.dateOfBirth"
-            placeholder="MM/DD/YYYY"
-            onfocus="(this.type='date')"
-            onblur="if(!this.value)this.type='text'"
-          >
+          <input v-model="user.dateOfBirth" type="date" required>
         </div>
 
         <div class="input-group">
           <label>Phone Number</label>
-          <input v-model="user.phoneNumber" type="tel" placeholder="814-XXX-XXXX">
+          <input v-model="user.phoneNumber" type="tel" placeholder="814-XXX-XXXX" required>
         </div>
       </section>
 
       <section class="form-section">
         <h3 class="section-title">Ride Preferences</h3>
-        <p class="section-desc">How do you like to ride? Tap the preferences that describe you best.</p>
+        <p class="section-desc">How do you like to ride? Tap to toggle.</p>
 
         <div class="prefs-flex">
           <div
@@ -67,11 +55,10 @@ x <template>
           >
             <i class="material-icons">{{ p.icon }}</i>
             <span class="pref-label">{{ p.label }}</span>
-            <span class="pref-sub">{{ p.sub }}</span>
           </div>
         </div>
 
-        <h3 class="section-title" id="driver">Driver Information (Optional)</h3>
+        <h3 class="section-title">Driver Information (Optional)</h3>
 
         <div class="input-group">
           <label>Driver's License Number</label>
@@ -80,24 +67,23 @@ x <template>
 
         <div class="input-group">
           <label>Vehicle Model</label>
-          <input v-model="vehicle.model" type="text" placeholder="Toyota Camry">
+          <input v-model="vehicle.model" type="text" placeholder="e.g. Honda Civic">
         </div>
 
         <div class="input-group">
           <label>Vehicle Color</label>
-          <input v-model="vehicle.color" type="text" placeholder="White">
+          <input v-model="vehicle.color" type="text" placeholder="e.g. Blue">
         </div>
 
         <div class="input-group">
           <label>License Plate</label>
           <input v-model="vehicle.plateNumber" type="text" placeholder="ABC-1234">
         </div>
-
       </section>
 
       <div class="submit-area">
-        <AppButton size="full" type="submit">
-          {{ isEditMode ? 'Save Changes' : 'Create Account' }}
+        <AppButton size="full" type="submit" :disabled="loading">
+          {{ loading ? 'Processing...' : (isEditMode ? 'Save Changes' : 'Create Account') }}
         </AppButton>
         <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
         <p v-if="!isEditMode" class="login-prompt">
@@ -119,9 +105,12 @@ const props = defineProps({
   initialData: { type: Object, default: () => ({}) }
 });
 
-const emit = defineEmits(['save']);
+const emit = defineEmits(['save', 'success']);
+const router = useRouter();
 
 const isEditMode = computed(() => props.mode === 'edit');
+const errorMessage = ref('');
+const loading = ref(false);
 
 const user = ref({
   name: '',
@@ -143,50 +132,18 @@ const vehicle = ref({
   plateNumber: ''
 });
 
-const emit = defineEmits(['success']);
-const router = useRouter();
-const errorMessage = ref('');
-const loading = ref(false);
-watch(
-  () => props.initialData,
-  (data) => {
-    if (!data || Object.keys(data).length === 0) return;
-
-    let cleanDate = '';
-    if (data.dateOfBirth) {
-      cleanDate = new Date(data.dateOfBirth).toISOString().split('T')[0];
-    }
-
-    user.value = {
-      ...user.value,
-      name: data.name || '',
-      email: data.email || '',
-      goldCardNumber: data.goldCardNumber || '',
-      dateOfBirth: cleanDate,
-      phoneNumber: data.phoneNumber || '',
-      driverLicense: data.driverLicense || '',
-      prefersMusic: data.prefersMusic || 'no',
-      prefersConversation: data.prefersConversation || 'no',
-      prefersSmoke: data.prefersSmoke || 'no',
-      prefersPets: data.prefersPets || 'no'
-    };
-
-    if (data.vehicle || data.model) {
-      vehicle.value = {
-        model: data.vehicle?.model || data.model || '',
-        color: data.vehicle?.color || data.color || '',
-        plateNumber: data.vehicle?.plateNumber || data.plateNumber || ''
-      };
-    }
-  },
-  { immediate: true, deep: true }
-);
+watch(() => props.initialData, (data) => {
+  if (!data || Object.keys(data).length === 0) return;
+  const cleanDate = data.dateOfBirth ? new Date(data.dateOfBirth).toISOString().split('T')[0] : '';
+  user.value = { ...user.value, ...data, dateOfBirth: cleanDate };
+  if (data.vehicle) vehicle.value = { ...data.vehicle };
+}, { immediate: true, deep: true });
 
 const availablePrefs = [
-  { id: 'music', key: 'prefersMusic', label: 'Music', icon: 'music_note', sub: 'Okay during ride?' },
-  { id: 'chat', key: 'prefersConversation', label: 'Conversation', icon: 'forum', sub: 'Like to chat?' },
-  { id: 'smoke', key: 'prefersSmoke', label: 'Non-Smoking', icon: 'smoke_free', sub: 'Strictly no smoke?' },
-  { id: 'pets', key: 'prefersPets', label: 'Pets', icon: 'pets', sub: 'Allows animals?' }
+  { id: 'music', key: 'prefersMusic', label: 'Music', icon: 'music_note' },
+  { id: 'chat', key: 'prefersConversation', label: 'Conversation', icon: 'forum' },
+  { id: 'smoke', key: 'prefersSmoke', label: 'Non-Smoking', icon: 'smoke_free' },
+  { id: 'pets', key: 'prefersPets', label: 'Pets', icon: 'pets' }
 ];
 
 const togglePref = (id) => {
@@ -196,37 +153,20 @@ const togglePref = (id) => {
 
 const submitUser = async () => {
   if (isEditMode.value) {
-    // Edit mode is not wired to a backend update yet.
-    emit('success');
+    emit('save', user.value);
     return;
   }
-
   loading.value = true;
   errorMessage.value = '';
-
   try {
-    const userPayload = {
-      ...user.value
-    };
-
-    const registeredUser = await userService.register(userPayload);
-
-    const hasVehicleData = [vehicle.value.model, vehicle.value.color, vehicle.value.plateNumber]
-      .some(value => value && value.toString().trim().length > 0);
-
-    if (hasVehicleData) {
-      const vehiclePayload = {
-        ...vehicle.value,
-        goldCardNumber: user.value.goldCardNumber
-      };
-      await vehicleService.add(vehiclePayload);
+    const registeredUser = await userService.register(user.value);
+    if (vehicle.value.model || vehicle.value.plateNumber) {
+      await vehicleService.add({ ...vehicle.value, goldCardNumber: user.value.goldCardNumber });
     }
-
     emit('success', registeredUser);
     router.push('/auth/login');
   } catch (error) {
-    console.error('Registration failed:', error);
-    errorMessage.value = error?.response?.data?.error || error.message || 'Registration failed. Please try again.';
+    errorMessage.value = error?.response?.data?.error || 'Registration failed.';
   } finally {
     loading.value = false;
   }
@@ -235,196 +175,31 @@ const submitUser = async () => {
 
 <style scoped>
 .user-form-container {
-  max-width: 1100px;
-  margin: 0 auto;
-  background-color: var(--white);
-}
-
-.form-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.form-header h1 {
-  font-size: 2.5rem;
-  color: var(--light-grey);
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  color: var(--light-grey);
-  font-size: 1.1rem;
-}
-
-.back-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--light-grey);
-  text-decoration: none;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0rem 2rem;
-}
-
-.section-title {
-  color: var(--juniata-blue);
-  border-bottom: 1px solid var(--light-gray);
-  padding-bottom: 10px;
-  margin-bottom: 1.5rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  text-align: left;
-}
-
-.section-title#driver {
-  margin-top: 0rem;
-  margin-bottom: 1.3rem;
-}
-
-.section-desc {
-  font-size: 0.85rem;
-  color: var(--light-grey);
-  margin-bottom: 1rem;
-  margin-top: 0rem;
-  text-align: left;
-}
-
-/* Inputs */
-.input-group {
-  margin-bottom: 1.5rem;
-  text-align: left;
-}
-
-label {
-  display: block;
-  font-size: 0.95rem;
-  margin-bottom: 8px;
-  color: var(--text-dark);
-  font-weight: 500;
-}
-
-input {
   width: 100%;
-  padding: 12px 15px;
-  border: 1px solid var(--white-hover);
-  border-radius: 10px;
-  font-size: 1rem;
-  box-sizing: border-box;
-  color: var(--text-dark);
-}
-
-input::placeholder {
-  color: var(--light-gray);
-}
-
-input:focus {
-  border-color: var(--light-grey);
-  color: var(--light-grey);
-  outline: none;
-}
-
-.disabled-input {
-  background: var(--light-gray);
-  color: var(--text-dark);
-  cursor: not-allowed;
-}
-
-.disabled-input::placeholder {
-  color: var(--light-grey);
-  cursor: not-allowed;
-}
-
-/* Preferences Cards */
-.prefs-flex {
-  display: flex;
-  justify-content: flex-start;
-  gap: 12px;
-  margin-bottom: 1.5rem;
-}
-
-.pref-card {
-  flex: 1;
-  max-width: 110px;
-  border: 1px solid var(--white-hover);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px;
+  background: #ffffff;
   border-radius: 12px;
-  padding: 10px 5px;
-  text-align: center;
-  cursor: pointer;
-  background: var(--white);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
+.form-header { text-align: center; margin-bottom: 2rem; }
+.form-header h1 { color: #153154; margin-bottom: 0.5rem; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.section-title { color: #153154; border-bottom: 2px solid #f0f0f0; padding-bottom: 8px; margin-bottom: 1.5rem; font-size: 1.1rem; }
+.input-group { margin-bottom: 1.2rem; }
+.input-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
+.input-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+.prefs-flex { display: flex; gap: 10px; margin-bottom: 2rem; flex-wrap: wrap; }
+.pref-card { padding: 10px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; text-align: center; min-width: 80px; display: flex; flex-direction: column; align-items: center; }
+.pref-card.active { background: #153154; color: white; border-color: #153154; }
+.submit-area { grid-column: span 2; text-align: center; margin-top: 20px; }
+.form-error { color: #d93025; margin-top: 10px; }
+.login-prompt { margin-top: 15px; }
+.login-prompt a { color: #153154; font-weight: bold; }
 
-.pref-card i {
-  color: var(--juniata-blue);
-  font-size: 1.3rem;
-}
-
-.pref-label {
-  font-weight: 700;
-  font-size: 0.75rem;
-  color: var(--text-dark);
-}
-
-.pref-sub {
-  font-size: 0.6rem;
-  color: var(--light-grey);
-}
-
-.pref-card.active {
-  background-color: var(--white-hover);
-  border-color: var(--light-grey);
-}
-
-/* Submit Area */
-.submit-area {
-  grid-column: span 2;
-  text-align: center;
-}
-
-.form-error {
-  margin-top: 1rem;
-  color: var(--danger, #dc2626);
-  font-weight: 500;
-}
-
-.login-prompt {
-  margin-top: 1.2rem;
-  color: var(--light-grey);
-}
-
-.login-prompt a {
-  color: var(--juniata-blue);
-  font-weight: 600;
-  text-decoration: underline;
-}
-
-.size-full {
-  margin-top: 10px;
-}
-
-@media (max-width: 900px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  .submit-area {
-    grid-column: span 1;
-  }
-  .prefs-flex {
-    flex-wrap: wrap;
-  }
-  .pref-card {
-    flex: none;
-    width: calc(50% - 10px);
-  }
+@media (max-width: 768px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .submit-area { grid-column: span 1; }
 }
 </style>
